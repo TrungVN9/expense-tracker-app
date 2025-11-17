@@ -35,6 +35,8 @@ public class Customer implements UserDetails {
 
     private String dateOfBirth;
 
+    private String occupation;
+
     public Customer() {}
 
     public Customer(String email, String password, String fullName) {

@@ -46,7 +46,8 @@ public class UserController {
                 customer.getUsername(),
                 customer.getPhone(),
                 customer.getAddress(),
-                customer.getDateOfBirth());
+                customer.getDateOfBirth(),
+                customer.getOccupation());
 
         return ResponseEntity.ok(userDto);
     }
@@ -76,6 +77,8 @@ public class UserController {
         customerToUpdate.setPhone(updateRequest.getPhone());
         customerToUpdate.setAddress(updateRequest.getAddress());
         customerToUpdate.setDateOfBirth(updateRequest.getDateOfBirth());
+        customerToUpdate.setOccupation(updateRequest.getOccupation());
+
         // In a real app, you might also update the email, which requires more complex logic (e.g., re-verification)
         // customerToUpdate.setEmail(updateRequest.getEmail());
 
@@ -90,7 +93,9 @@ public class UserController {
                 updatedCustomer.getUsername(),
                 updatedCustomer.getPhone(),
                 updatedCustomer.getAddress(),
-                updatedCustomer.getDateOfBirth());
+                updatedCustomer.getDateOfBirth(),
+                updatedCustomer.getOccupation()
+        );
 
         return ResponseEntity.ok(userDto);
     }
@@ -108,6 +113,7 @@ public class UserController {
         private String phone;
         private String address;
         private String dateOfBirth;
+        private String occupation;
     }
 
     /**
@@ -121,5 +127,6 @@ public class UserController {
         private String phone;
         private String address;
         private String dateOfBirth;
+        private String occupation;
     }
 }
