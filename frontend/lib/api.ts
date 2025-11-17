@@ -25,7 +25,24 @@ export interface UserProfile {
   phone?: string;
   address?: string;
   dateOfBirth?: string;
-  occupation?: string;
+}
+
+export interface TransactionPayload {
+  amount: number;
+  category: string;
+  date: string; // ISO date string (YYYY-MM-DD)
+  description?: string;
+  type: 'expense' | 'income' | string;
+}
+
+export interface TransactionResponse {
+  id?: number;
+  amount: number;
+  category: string;
+  date: string;
+  description?: string;
+  type: string;
+  createdAt?: string;
 }
 
 class ApiClient {
@@ -161,6 +178,29 @@ class ApiClient {
     return this.request<UserProfile>('/api/users/me', {
       method: 'PUT',
       body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Transaction Endpoints
+   */
+
+  /**
+   * Create a transaction (expense or income)
+   */
+  async createTransaction(data: TransactionPayload): Promise<TransactionResponse> {
+    return this.request<TransactionResponse>('/api/transactions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Get transactions for the authenticated user
+   */
+  async getTransactions(): Promise<TransactionResponse[]> {
+    return this.request<TransactionResponse[]>('/api/transactions', {
+      method: 'GET',
     });
   }
 

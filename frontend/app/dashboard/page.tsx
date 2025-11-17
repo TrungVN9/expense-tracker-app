@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { useTransactionNotification } from '@/lib/transaction-context';
+import { apiClient } from '@/lib/api';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +14,43 @@ import { LayoutDashboard, CreditCard, Settings, UserCircle, LogOut, Wallet, Tren
 function DashboardContent() {
   const router = useRouter();
   const { user, logout, loading } = useAuth();
+  const { transactionAdded, clearTransactionAdded } = useTransactionNotification();
+
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [txLoading, setTxLoading] = useState(true);
+  const [txError, setTxError] = useState<string | null>(null);
+
+  const loadTransactions = async () => {
+    setTxLoading(true);
+    setTxError(null);
+    try {
+      const data = await apiClient.getTransactions();
+      setTransactions(data || []);
+    } catch (err) {
+      console.error('Failed to load transactions', err);
+      setTxError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setTxLoading(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      await loadTransactions();
+    };
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  // Refetch when transaction is added
+  useEffect(() => {
+    if (transactionAdded) {
+      loadTransactions();
+      clearTransactionAdded();
+    }
+  }, [transactionAdded, clearTransactionAdded]);
 
   if (loading) {
     return (
@@ -32,10 +71,6 @@ function DashboardContent() {
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: true },
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: false },
-    //{ href: '/categories', icon: Wallet, label: 'Categories', active: false },
-    //{ href: '/reports', icon: FileText, label: 'Reports', active: false },
-    //{ href: '/goals', icon: Target, label: 'Goals', active: false },
-    //{ href: '/budgets', icon: BookOpen, label: 'Budgets', active: false },
   ];
 
   const bottomNavItems = [
@@ -108,7 +143,16 @@ function DashboardContent() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-2xl font-bold text-primary">$12,450.00</p>
+                <p className="text-2xl font-bold text-primary">
+                  ${(
+                    transactions
+                      .filter((tx: any) => tx.type === 'income')
+                      .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0) -
+                    transactions
+                      .filter((tx: any) => tx.type === 'expense')
+                      .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
+                  ).toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
@@ -117,73 +161,95 @@ function DashboardContent() {
         <div className="p-8 space-y-8">
           {/* Stats Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Expenses
-                </CardTitle>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
-                  <ArrowDownRight className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$2,350.00</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  <span className="text-destructive">+5.2%</span> from last month
-                </p>
-              </CardContent>
-            </Card>
+            {txLoading ? (
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">Loading financial data...</p>
+              </div>
+            ) : txError ? (
+              <div className="col-span-full text-center py-8">
+                <p className="text-destructive">{txError}</p>
+              </div>
+            ) : (
+              <>
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Total Expenses
+                    </CardTitle>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                      <ArrowDownRight className="h-4 w-4" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      ${transactions
+                        .filter((tx: any) => tx.type === 'expense')
+                        .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
+                        .toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {transactions.filter((tx: any) => tx.type === 'expense').length} expense(s)
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Income
-                </CardTitle>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                  <ArrowUpRight className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$5,240.00</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  <span className="text-accent">+12.5%</span> from last month
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Total Income
+                    </CardTitle>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      ${transactions
+                        .filter((tx: any) => tx.type === 'income')
+                        .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
+                        .toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {transactions.filter((tx: any) => tx.type === 'income').length} income(s)
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Budget Status
-                </CardTitle>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Target className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">75%</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  On track this month
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Budget Status
+                    </CardTitle>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Target className="h-4 w-4" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">75%</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      On track this month
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Upcoming Bills
-                </CardTitle>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-3/10 text-chart-3">
-                  <Wallet className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">3 Bills</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Next one in 5 days
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Upcoming Bills
+                    </CardTitle>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-3/10 text-chart-3">
+                      <Wallet className="h-4 w-4" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">3 Bills</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Next one in 5 days
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
 
           {/* Recent Transactions */}
@@ -196,42 +262,66 @@ function DashboardContent() {
                     Your latest recorded transactions
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  View All
-                </Button>
+                <Link href="/transactions/history">
+                  <Button variant="outline" size="sm">
+                    View All
+                  </Button>
+                </Link>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: 'Grocery Store', amount: '-$85.50', date: 'Today, 2:30 PM', category: 'Food' },
-                  { name: 'Salary Deposit', amount: '+$3,500.00', date: 'Yesterday, 9:00 AM', category: 'Income' },
-                  { name: 'Electric Bill', amount: '-$125.00', date: '2 days ago', category: 'Utilities' },
-                  { name: 'Coffee Shop', amount: '-$12.50', date: '3 days ago', category: 'Food' },
-                ].map((transaction, index) => (
-                  <div key={index} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                        transaction.amount.startsWith('+') ? 'bg-accent/10' : 'bg-muted'
-                      }`}>
-                        <CreditCard className="h-4 w-4" />
+              {txLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading transactions...</p>
+                </div>
+              ) : txError ? (
+                <div className="text-center py-8">
+                  <p className="text-destructive">{txError}</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No transactions yet. Add one to get started!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {transactions.slice(0, 6).map((transaction: any, index: number) => {
+                    const date = new Date(transaction.date);
+                    const formattedDate = date.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    const isIncome = transaction.type === 'income';
+                    return (
+                      <div key={index} className="flex items-center justify-between py-3 border-b border-border last:border-0">
+                        <div className="flex items-center gap-4">
+                          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                            isIncome ? 'bg-accent/10' : 'bg-muted'
+                          }`}>
+                            {isIncome ? (
+                              <ArrowUpRight className="h-4 w-4 text-accent" />
+                            ) : (
+                              <ArrowDownRight className="h-4 w-4 text-destructive" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{transaction.description}</p>
+                            <p className="text-sm text-muted-foreground">{formattedDate}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-semibold ${
+                            isIncome ? 'text-accent' : 'text-foreground'
+                          }`}>
+                            {isIncome ? '+' : '-'}${transaction.amount.toFixed(2)}
+                          </p>
+                          <p className="text-sm text-muted-foreground capitalize">{transaction.category}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{transaction.name}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-semibold ${
-                        transaction.amount.startsWith('+') ? 'text-accent' : 'text-foreground'
-                      }`}>
-                        {transaction.amount}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{transaction.category}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

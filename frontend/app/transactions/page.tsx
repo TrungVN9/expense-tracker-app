@@ -1,9 +1,12 @@
+
 "use client";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { useTransactionNotification } from '@/lib/transaction-context';
+import { apiClient } from '@/lib/api';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,33 +17,58 @@ import { LayoutDashboard, CreditCard, Settings, UserCircle, LogOut, Wallet, Targ
 function TransactionsContent() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { markTransactionAdded } = useTransactionNotification();
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
     date: new Date().toISOString().split('T')[0],
     description: '',
-    type: 'transaction'
+    type: 'expense'
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleLogout = () => {
     logout();
     router.push('/login');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Transaction data:', formData);
-    // Here you would typically send the data to your backend
-    router.push('/dashboard');
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      // Prepare payload
+      const payload = {
+        amount: parseFloat(String(formData.amount)) || 0,
+        category: formData.category,
+        date: formData.date,
+        description: formData.description,
+        type: formData.type,
+      };
+
+      // Call backend API
+      await apiClient.createTransaction(payload);
+
+      setSuccess('Transaction created successfully');
+      // Notify dashboard to refetch
+      markTransactionAdded();
+      // Redirect to dashboard after a short delay so user sees the success message
+      setTimeout(() => router.push('/dashboard'), 700);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create transaction';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: false },
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: true },
-    //{ href: '/categories', icon: Wallet, label: 'Categories', active: false },
-    //{ href: '/reports', icon: FileText, label: 'Reports', active: false },
-    //{ href: '/goals', icon: Target, label: 'Goals', active: false },
-    //{ href: '/budgets', icon: BookOpen, label: 'Budgets', active: false },
   ];
 
   const bottomNavItems = [
@@ -70,7 +98,7 @@ function TransactionsContent() {
     "Business Revenue",
     "Other",
   ];
-
+  
   const categories = formData.type === "expense" 
     ? expenseCategories 
     : incomeCategories;
@@ -179,6 +207,9 @@ function TransactionsContent() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <div className="text-sm text-red-600">{error}</div>}
+            {success && <div className="text-sm text-green-600">{success}</div>}
+
             {/* Amount Card */}
             <Card className="border-border">
               <CardHeader>
@@ -327,9 +358,10 @@ function TransactionsContent() {
               <Button
                 type="submit"
                 className="flex-1 h-12 text-base font-medium"
+                disabled={loading}
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Create {formData.type === 'expense' ? 'Expense' : 'Income'}
+                {loading ? 'Creating...' : `Create ${formData.type === 'expense' ? 'Expense' : 'Income'}`}
               </Button>
               <Button
                 type="button"
