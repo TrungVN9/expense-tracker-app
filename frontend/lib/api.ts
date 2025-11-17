@@ -21,6 +21,11 @@ export interface UserProfile {
   email: string;
   fullName: string;
   createdAt?: string;
+  username?: string;
+  phone?: string;
+  address?: string;
+  dateOfBirth?: string;
+  occupation?: string;
 }
 
 class ApiClient {

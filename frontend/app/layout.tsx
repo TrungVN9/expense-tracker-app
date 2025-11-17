@@ -9,7 +9,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Expense Tracker - Take Control of Your Finances',
   description: 'Track expenses, manage budgets, and achieve your financial goals with powerful insights and intuitive tools.',
-  generator: 'v0.app',
+  generator: 'Next.js',
   icons: {
     icon: [
       {
