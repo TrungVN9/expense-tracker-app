@@ -27,6 +27,14 @@ public class Customer implements UserDetails {
 
     private String fullName;
 
+    private String username;
+
+    private String phone;
+
+    private String address;
+
+    private String dateOfBirth;
+
     public Customer() {}
 
     public Customer(String email, String password, String fullName) {
