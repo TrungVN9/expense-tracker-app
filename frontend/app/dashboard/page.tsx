@@ -32,11 +32,10 @@ function DashboardContent() {
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: true },
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: false },
-    { href: '/categories', icon: Wallet, label: 'Categories', active: false },
-    { href: '/reports', icon: FileText, label: 'Reports', active: false },
-    { href: '/goals', icon: Target, label: 'Goals', active: false },
-    { href: '/budgets', icon: BookOpen, label: 'Budgets', active: false },
-    { href: '/debts', icon: Landmark, label: 'Debts', active: false },
+    //{ href: '/categories', icon: Wallet, label: 'Categories', active: false },
+    //{ href: '/reports', icon: FileText, label: 'Reports', active: false },
+    //{ href: '/goals', icon: Target, label: 'Goals', active: false },
+    //{ href: '/budgets', icon: BookOpen, label: 'Budgets', active: false },
   ];
 
   const bottomNavItems = [
