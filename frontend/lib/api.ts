@@ -46,6 +46,54 @@ export interface TransactionResponse {
   createdAt?: string;
 }
 
+/** Bills and Budgets: payload/response types and endpoints */
+export interface BillPayload {
+  amount: number;
+  dueDate: string; // ISO date
+  description?: string;
+  category?: string;
+  recurring?: boolean;
+  paid?: boolean;
+}
+
+export interface BillResponse {
+  id?: number;
+  amount: number;
+  dueDate: string;
+  description?: string;
+  category?: string;
+  recurring?: boolean;
+  paid?: boolean;
+  createdAt?: string;
+}
+
+export interface BudgetPayload {
+  name: string;
+  limit: number;
+  period?: 'monthly' | 'weekly' | 'yearly' | string;
+  categories?: string[];
+}
+
+export interface BudgetResponse {
+  id?: number;
+  name: string;
+  limit: number;
+  period: string;
+  categories?: string[];
+  spent?: number;
+  createdAt?: string;
+}
+
+export interface DashboardSummary {
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+  expensesByCategory: Array<{ category: string; amount: number }>;
+  recentTransactions: TransactionResponse[];
+  upcomingBills?: BillResponse[];
+  budgets?: BudgetResponse[];
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -201,6 +249,93 @@ class ApiClient {
    */
   async getTransactions(): Promise<TransactionResponse[]> {
     return this.request<TransactionResponse[]>('/api/transactions', {
+      method: 'GET',
+    });
+  }
+
+  /** Bills endpoints */
+  async createBill(data: BillPayload): Promise<BillResponse> {
+    return this.request<BillResponse>('/api/bills', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getBills(): Promise<BillResponse[]> {
+    return this.request<BillResponse[]>('/api/bills', {
+      method: 'GET',
+    });
+  }
+
+  /** Get upcoming bills (used on dashboard) */
+  async getUpcomingBills(): Promise<BillResponse[]> {
+    // try a dedicated upcoming endpoint; backend may also support query param fallback
+    try {
+      return await this.request<BillResponse[]>('/api/bills/upcoming', { method: 'GET' });
+    } catch (e) {
+      return this.request<BillResponse[]>('/api/bills?upcoming=true', { method: 'GET' });
+    }
+  }
+
+  async updateBill(id: number | string, data: Partial<BillPayload>): Promise<BillResponse> {
+    return this.request<BillResponse>(`/api/bills/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteBill(id: number | string): Promise<void> {
+    return this.request<void>(`/api/bills/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /** Budgets endpoints */
+  async createBudget(data: BudgetPayload): Promise<BudgetResponse> {
+    return this.request<BudgetResponse>('/api/budgets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getBudgets(): Promise<BudgetResponse[]> {
+    return this.request<BudgetResponse[]>('/api/budgets', {
+      method: 'GET',
+    });
+  }
+
+  /** Get a summarized budget status used on dashboard */
+  async getBudgetStatus(): Promise<any> {
+    // expected to return { overallPercentage: number, details?: ... }
+    try {
+      return await this.request<any>('/api/budgets/status', { method: 'GET' });
+    } catch (e) {
+      // fallback to dashboard summary if budgets/status isn't implemented
+      try {
+        const summary = await this.getDashboardSummary();
+        return { overallPercentage: summary && summary.totalExpenses && summary.totalIncome ? Math.round((summary.totalExpenses / (summary.totalIncome || 1)) * 100) : 0 };
+      } catch (err) {
+        return null;
+      }
+    }
+  }
+
+  async updateBudget(id: number | string, data: Partial<BudgetPayload>): Promise<BudgetResponse> {
+    return this.request<BudgetResponse>(`/api/budgets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteBudget(id: number | string): Promise<void> {
+    return this.request<void>(`/api/budgets/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /** Dashboard summary */
+  async getDashboardSummary(): Promise<DashboardSummary> {
+    return this.request<DashboardSummary>('/api/dashboard/summary', {
       method: 'GET',
     });
   }
