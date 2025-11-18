@@ -43,7 +43,18 @@ function BillsContent() {
     setLoading(true);
     try {
       const data = await apiClient.getBills();
-      setBills(data || []);
+      setBills(
+        (data || []).map((bill: any) => ({
+          id: bill.id,
+          name: bill.name ?? '',
+          amount: bill.amount ?? 0,
+          dueDate: bill.dueDate ?? '',
+          recurring: bill.recurring ?? false,
+          frequency: bill.frequency ?? 'monthly',
+          category: bill.category ?? '',
+          status: bill.status ?? 'pending',
+        }))
+      );
     } catch (err) {
       console.error('Failed to load bills', err);
     } finally {

@@ -160,11 +160,39 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP Error: ${response.status}`);
+        // Try parse error body if present, otherwise throw generic
+        const text = await response.text().catch(() => '');
+        let errorMsg = `HTTP Error: ${response.status}`;
+        if (text) {
+          try {
+            const errorData = JSON.parse(text);
+            errorMsg = errorData.message || errorData.error || JSON.stringify(errorData);
+          } catch (e) {
+            errorMsg = text;
+          }
+        }
+        throw new Error(errorMsg);
       }
 
-      return await response.json();
+      // Some successful responses (e.g. 204 No Content) have empty bodies.
+      // Safely handle empty response bodies to avoid `Unexpected end of JSON input`.
+      const contentType = response.headers.get('content-type') || '';
+      if (response.status === 204) {
+        // No content
+        return null as unknown as T;
+      }
+
+      const text = await response.text();
+      if (!text) {
+        return null as unknown as T;
+      }
+
+      if (contentType.includes('application/json')) {
+        return JSON.parse(text) as T;
+      }
+
+      // If not JSON, return text as unknown (caller should handle it)
+      return text as unknown as T;
     } catch (error) {
       // Re-throw the error to be handled by the calling function (e.g., in the UI component)
       throw error;
