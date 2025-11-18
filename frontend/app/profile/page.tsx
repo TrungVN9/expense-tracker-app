@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient, UserProfile } from '@/lib/api';
-import { LayoutDashboard, CreditCard, UserCircle, User, LogOut, Wallet, Upload, Mail, SquareActivity , Save, Calendar, MapPin, Phone,} from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, User, Receipt, LogOut, Wallet, Upload, Mail, SquareActivity , Save, Calendar, MapPin, Phone,} from 'lucide-react';
 
 function ProfileContent() {
   const router = useRouter();
@@ -100,6 +100,8 @@ function ProfileContent() {
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: false },
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: false },
+    { href: '/bills', icon: Receipt, label: 'Bills', active: false },
+    { href: '/budgets', icon: Wallet, label: 'Budgets', active: false },
   ];
 
   const bottomNavItems = [

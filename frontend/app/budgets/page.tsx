@@ -15,7 +15,7 @@ import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, Receipt, Targe
 interface Budget {
   id: string;
   category: string;
-  limit: number;
+  budget_limit: number;
   spent: number;
   period: string;
 }
@@ -29,7 +29,7 @@ function BudgetsContent() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [formData, setFormData] = useState({
     category: '',
-    limit: '',
+    budget_limit: '',
     period: 'monthly',
   });
 
@@ -37,7 +37,15 @@ function BudgetsContent() {
     setLoading(true);
     try {
       const data = await apiClient.getBudgets();
-      setBudgets(data || []);
+      setBudgets(
+        (data || []).map((item: any) => ({
+          id: item.id,
+          category: item.category ?? '',
+            budget_limit: item.budget_limit ?? 0,
+          spent: item.spent ?? 0,
+          period: item.period ?? 'monthly',
+        }))
+      );
     } catch (err) {
       console.error('Failed to load budgets', err);
     } finally {
@@ -56,10 +64,18 @@ function BudgetsContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate category is selected
+    if (!formData.category) {
+      console.error('Please select a category');
+      return;
+    }
+    
     try {
       const budgetData = {
-        ...formData,
-        limit: parseFloat(formData.limit),
+        category: formData.category,
+          budget_limit: parseFloat(formData.budget_limit),
+        period: formData.period,
       };
 
       if (editingBudget) {
@@ -91,7 +107,7 @@ function BudgetsContent() {
     setEditingBudget(budget);
     setFormData({
       category: budget.category,
-      limit: budget.limit.toString(),
+        budget_limit: budget.budget_limit.toString(),
       period: budget.period,
     });
     setShowModal(true);
@@ -100,7 +116,7 @@ function BudgetsContent() {
   const resetForm = () => {
     setFormData({
       category: '',
-      limit: '',
+      budget_limit: '',
       period: 'monthly',
     });
     setEditingBudget(null);
@@ -234,9 +250,9 @@ function BudgetsContent() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {budgets.map((budget) => {
-                const percentage = calculatePercentage(budget.spent, budget.limit);
-                const remaining = budget.limit - budget.spent;
-                const isOverBudget = budget.spent > budget.limit;
+             const percentage = calculatePercentage(budget.spent, budget.budget_limit);
+                  const remaining = budget.budget_limit - budget.spent;
+                  const isOverBudget = budget.spent > budget.budget_limit;
 
                 return (
                   <Card key={budget.id} className="border-border hover:shadow-lg transition-shadow">
@@ -277,7 +293,7 @@ function BudgetsContent() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Spent</span>
-                          <span className="font-medium">${budget.spent.toFixed(2)} / ${budget.limit.toFixed(2)}</span>
+                            <span className="font-medium">${budget.spent.toFixed(2)} / ${budget.budget_limit.toFixed(2)}</span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
@@ -353,8 +369,8 @@ function BudgetsContent() {
                       step="0.01"
                       placeholder="0.00"
                       className="pl-9"
-                      value={formData.limit}
-                      onChange={(e) => setFormData({ ...formData, limit: e.target.value })}
+                      value={formData.budget_limit}
+                      onChange={(e) => setFormData({ ...formData, budget_limit: e.target.value })}
                       required
                     />
                   </div>

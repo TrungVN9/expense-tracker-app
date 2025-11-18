@@ -69,18 +69,16 @@ export interface BillResponse {
 }
 
 export interface BudgetPayload {
-  name: string;
-  limit: number;
+  category: string;
+  budget_limit: number;
   period?: 'monthly' | 'weekly' | 'yearly' | string;
-  categories?: string[];
 }
 
 export interface BudgetResponse {
   id?: number;
-  name: string;
-  limit: number;
+  category: string;
+  budget_limit: number;
   period: string;
-  categories?: string[];
   spent?: number;
   createdAt?: string;
 }
