@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, Receipt, Plus, Pencil, Trash2, Calendar, DollarSign, X } from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, Receipt, Plus, Pencil, Trash2, Calendar, DollarSign, X, CheckCircle } from 'lucide-react';
 
 interface Bill {
   id: string;
@@ -21,6 +21,7 @@ interface Bill {
   frequency: string;
   category: string;
   status: 'paid' | 'pending' | 'overdue';
+  paidDate?: string;
 }
 
 function BillsContent() {
@@ -43,18 +44,18 @@ function BillsContent() {
     setLoading(true);
     try {
       const data = await apiClient.getBills();
-      setBills(
-        (data || []).map((bill: any) => ({
-          id: bill.id,
-          name: bill.name ?? '',
-          amount: bill.amount ?? 0,
-          dueDate: bill.dueDate ?? '',
-          recurring: bill.recurring ?? false,
-          frequency: bill.frequency ?? 'monthly',
-          category: bill.category ?? '',
-          status: bill.status ?? 'pending',
-        }))
-      );
+      const transformedBills: Bill[] = (data || []).map((bill: any) => ({
+        id: bill.id,
+        name: bill.name,
+        amount: bill.amount,
+        dueDate: bill.dueDate,
+        recurring: bill.recurring,
+        frequency: bill.frequency,
+        category: bill.category,
+        status: bill.status,
+        paidDate: bill.paidDate,
+      }));
+      setBills(transformedBills);
     } catch (err) {
       console.error('Failed to load bills', err);
     } finally {
@@ -115,6 +116,26 @@ function BillsContent() {
       category: bill.category,
     });
     setShowModal(true);
+  };
+
+  const handlePayBill = async (id: string) => {
+    try {
+      await apiClient.payBill(id);
+      await loadBills();
+    } catch (err) {
+      console.error('Failed to mark bill as paid', err);
+    }
+  };
+
+  const handleUnpayBill = async (id: string) => {
+    if (!confirm('Mark this bill as unpaid?')) return;
+    
+    try {
+      await apiClient.unpayBill(id);
+      await loadBills();
+    } catch (err) {
+      console.error('Failed to mark bill as unpaid', err);
+    }
   };
 
   const resetForm = () => {
@@ -290,11 +311,38 @@ function BillsContent() {
                       <Calendar className="h-4 w-4" />
                       <span>Due: {new Date(bill.dueDate).toLocaleDateString()}</span>
                     </div>
+                    {bill.status === 'paid' && bill.paidDate && (
+                      <div className="flex items-center gap-2 text-sm text-accent">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Paid: {new Date(bill.paidDate).toLocaleDateString()}</span>
+                      </div>
+                    )}
                     {bill.recurring && (
                       <div className="text-xs text-muted-foreground capitalize">
                         Repeats {bill.frequency}
                       </div>
                     )}
+                    <div className="pt-2 border-t border-border">
+                      {bill.status === 'paid' ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => handleUnpayBill(bill.id)}
+                        >
+                          Mark as Unpaid
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="w-full gap-2"
+                          onClick={() => handlePayBill(bill.id)}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Mark as Paid
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}

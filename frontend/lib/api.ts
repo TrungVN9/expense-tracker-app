@@ -64,6 +64,7 @@ export interface BillResponse {
   category?: string;
   recurring?: boolean;
   paid?: boolean;
+  paidDate?: string;
   createdAt?: string;
 }
 
@@ -315,6 +316,18 @@ class ApiClient {
   async deleteBill(id: number | string): Promise<void> {
     return this.request<void>(`/api/bills/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async payBill(id: number | string): Promise<BillResponse> {
+    return this.request<BillResponse>(`/api/bills/${id}/pay`, {
+      method: 'POST',
+    });
+  }
+
+  async unpayBill(id: number | string): Promise<BillResponse> {
+    return this.request<BillResponse>(`/api/bills/${id}/unpay`, {
+      method: 'POST',
     });
   }
 
