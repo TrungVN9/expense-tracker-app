@@ -1,11 +1,17 @@
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/ExpenseTrackerApplication.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/controllers/AuthController.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/controllers/BillController.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/controllers/BudgetController.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/controllers/TransactionController.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/controllers/UserController.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/exceptions/EmailAlreadyExistsException.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/exceptions/RestExceptionHandler.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/models/Bill.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/models/Budget.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/models/Customer.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/models/Transaction.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/repositories/BillRepository.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/repositories/BudgetRepository.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/repositories/CustomerRepository.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/repositories/TransactionRepository.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/main/java/com/tv/expense_tracker/securities/JwtAuthFilter.java
