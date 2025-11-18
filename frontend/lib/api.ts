@@ -25,6 +25,7 @@ export interface UserProfile {
   phone?: string;
   address?: string;
   dateOfBirth?: string;
+  occupation?: string;
 }
 
 export interface TransactionPayload {

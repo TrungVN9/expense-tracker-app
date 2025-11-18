@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient, UserProfile } from '@/lib/api';
-import { LayoutDashboard, CreditCard, Settings, UserCircle, User, LogOut, Wallet, Upload, Mail, SquareActivity , Save, Calendar, MapPin, Phone,} from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, User, LogOut, Wallet, Upload, Mail, SquareActivity , Save, Calendar, MapPin, Phone,} from 'lucide-react';
 
 function ProfileContent() {
   const router = useRouter();
@@ -104,7 +104,6 @@ function ProfileContent() {
 
   const bottomNavItems = [
     { href: '/profile', icon: UserCircle, label: 'Profile', active: true },
-    { href: '/settings', icon: Settings, label: 'Settings', active: false },
   ];
 
   if (authLoading || loading) {

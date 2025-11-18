@@ -73,7 +73,6 @@ function TransactionsContent() {
 
   const bottomNavItems = [
     { href: '/profile', icon: UserCircle, label: 'Profile' },
-    { href: '/settings', icon: Settings, label: 'Settings' },
   ];
 
   const expenseCategories = [

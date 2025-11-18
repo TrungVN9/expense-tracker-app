@@ -9,7 +9,7 @@ import { apiClient } from '@/lib/api';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, CreditCard, Settings, UserCircle, LogOut, Wallet, TrendingUp, Target, BookOpen, FileText, Landmark, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, TrendingUp, Target, BookOpen, FileText, Landmark, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
@@ -75,7 +75,6 @@ function DashboardContent() {
 
   const bottomNavItems = [
     { href: '/profile', icon: UserCircle, label: 'Profile' },
-    { href: '/settings', icon: Settings, label: 'Settings' },
   ];
 
   return (
