@@ -9,7 +9,7 @@ import { apiClient } from '@/lib/api';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, TrendingUp, Target, BookOpen, FileText, Landmark, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, TrendingUp, Target, Receipt, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
@@ -17,37 +17,35 @@ function DashboardContent() {
   const { transactionAdded, clearTransactionAdded } = useTransactionNotification();
 
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [txLoading, setTxLoading] = useState(true);
-  const [txError, setTxError] = useState<string | null>(null);
+  const [upcomingBills, setUpcomingBills] = useState<any[]>([]);
+  const [budgetStatus, setBudgetStatus] = useState<any>(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
-  const loadTransactions = async () => {
-    setTxLoading(true);
-    setTxError(null);
+  const loadDashboardData = async () => {
+    setDataLoading(true);
     try {
-      const data = await apiClient.getTransactions();
-      setTransactions(data || []);
+      const [txData, billsData, budgetData] = await Promise.all([
+        apiClient.getTransactions().catch(() => []),
+        apiClient.getUpcomingBills().catch(() => []),
+        apiClient.getBudgetStatus().catch(() => null),
+      ]);
+      setTransactions(txData || []);
+      setUpcomingBills(billsData || []);
+      setBudgetStatus(budgetData);
     } catch (err) {
-      console.error('Failed to load transactions', err);
-      setTxError(err instanceof Error ? err.message : String(err));
+      console.error('Failed to load dashboard data', err);
     } finally {
-      setTxLoading(false);
+      setDataLoading(false);
     }
   };
 
-  // Initial load
   useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      await loadTransactions();
-    };
-    load();
-    return () => { mounted = false; };
+    loadDashboardData();
   }, []);
 
-  // Refetch when transaction is added
   useEffect(() => {
     if (transactionAdded) {
-      loadTransactions();
+      loadDashboardData();
       clearTransactionAdded();
     }
   }, [transactionAdded, clearTransactionAdded]);
@@ -71,11 +69,27 @@ function DashboardContent() {
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: true },
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: false },
+    { href: '/bills', icon: Receipt, label: 'Bills', active: false },
+    { href: '/budgets', icon: Wallet, label: 'Budgets', active: false },
   ];
 
   const bottomNavItems = [
     { href: '/profile', icon: UserCircle, label: 'Profile' },
   ];
+
+  const totalExpenses = transactions
+    .filter((tx: any) => tx.type === 'expense')
+    .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+
+  const totalIncome = transactions
+    .filter((tx: any) => tx.type === 'income')
+    .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+
+  const currentBalance = totalIncome - totalExpenses;
+
+  const nextBillDays = upcomingBills.length > 0 
+    ? Math.ceil((new Date(upcomingBills[0]?.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -142,16 +156,7 @@ function DashboardContent() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-2xl font-bold text-primary">
-                  ${(
-                    transactions
-                      .filter((tx: any) => tx.type === 'income')
-                      .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0) -
-                    transactions
-                      .filter((tx: any) => tx.type === 'expense')
-                      .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
-                  ).toFixed(2)}
-                </p>
+                <p className="text-2xl font-bold text-primary">${currentBalance.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -160,95 +165,127 @@ function DashboardContent() {
         <div className="p-8 space-y-8">
           {/* Stats Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {txLoading ? (
-              <div className="col-span-full text-center py-8">
-                <p className="text-muted-foreground">Loading financial data...</p>
-              </div>
-            ) : txError ? (
-              <div className="col-span-full text-center py-8">
-                <p className="text-destructive">{txError}</p>
-              </div>
-            ) : (
-              <>
-                <Card className="border-border">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Total Expenses
-                    </CardTitle>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
-                      <ArrowDownRight className="h-4 w-4" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      ${transactions
-                        .filter((tx: any) => tx.type === 'expense')
-                        .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
-                        .toFixed(2)}
-                    </div>
+            <Card className="border-border">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Expenses
+                </CardTitle>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                  <ArrowDownRight className="h-4 w-4" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {dataLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-8 bg-muted rounded w-24 mb-2"></div>
+                    <div className="h-4 bg-muted rounded w-32"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold">${totalExpenses.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {transactions.filter((tx: any) => tx.type === 'expense').length} expense(s)
                     </p>
-                  </CardContent>
-                </Card>
+                  </>
+                )}
+              </CardContent>
+            </Card>
 
-                <Card className="border-border">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Total Income
-                    </CardTitle>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      ${transactions
-                        .filter((tx: any) => tx.type === 'income')
-                        .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0)
-                        .toFixed(2)}
-                    </div>
+            <Card className="border-border">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Income
+                </CardTitle>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {dataLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-8 bg-muted rounded w-24 mb-2"></div>
+                    <div className="h-4 bg-muted rounded w-32"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold">${totalIncome.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {transactions.filter((tx: any) => tx.type === 'income').length} income(s)
                     </p>
-                  </CardContent>
-                </Card>
+                  </>
+                )}
+              </CardContent>
+            </Card>
 
-                <Card className="border-border">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Budget Status
-                    </CardTitle>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Target className="h-4 w-4" />
+            <Link href="/budgets">
+              <Card className="border-border hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Budget Status
+                  </CardTitle>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Target className="h-4 w-4" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {dataLoading ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-muted rounded w-20 mb-2"></div>
+                      <div className="h-4 bg-muted rounded w-28"></div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">75%</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      On track this month
-                    </p>
-                  </CardContent>
-                </Card>
+                  ) : budgetStatus ? (
+                    <>
+                      <div className="text-2xl font-bold">{budgetStatus.overallPercentage}%</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {budgetStatus.overallPercentage <= 75 ? 'On track' : budgetStatus.overallPercentage <= 90 ? 'Watch spending' : 'Over budget'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold">--</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        No budgets set
+                      </p>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
 
-                <Card className="border-border">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Upcoming Bills
-                    </CardTitle>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-3/10 text-chart-3">
-                      <Wallet className="h-4 w-4" />
+            <Link href="/bills">
+              <Card className="border-border hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Upcoming Bills
+                  </CardTitle>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-3/10 text-chart-3">
+                    <Receipt className="h-4 w-4" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {dataLoading ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-muted rounded w-24 mb-2"></div>
+                      <div className="h-4 bg-muted rounded w-32"></div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">3 Bills</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Next one in 5 days
-                    </p>
-                  </CardContent>
-                </Card>
-              </>
-            )}
+                  ) : upcomingBills.length > 0 ? (
+                    <>
+                      <div className="text-2xl font-bold">{upcomingBills.length} {upcomingBills.length === 1 ? 'Bill' : 'Bills'}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Next in {nextBillDays} {nextBillDays === 1 ? 'day' : 'days'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold">No Bills</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        All caught up
+                      </p>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           {/* Recent Transactions */}
@@ -261,7 +298,7 @@ function DashboardContent() {
                     Your latest recorded transactions
                   </p>
                 </div>
-                <Link href="/transactions/history">
+                <Link href="/transactions">
                   <Button variant="outline" size="sm">
                     View All
                   </Button>
@@ -269,13 +306,9 @@ function DashboardContent() {
               </div>
             </CardHeader>
             <CardContent>
-              {txLoading ? (
+              {dataLoading ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Loading transactions...</p>
-                </div>
-              ) : txError ? (
-                <div className="text-center py-8">
-                  <p className="text-destructive">{txError}</p>
                 </div>
               ) : transactions.length === 0 ? (
                 <div className="text-center py-8">
