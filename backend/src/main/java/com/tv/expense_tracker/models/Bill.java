@@ -35,6 +35,8 @@ public class Bill {
     @Column(nullable = false)
     private String status = "pending"; // paid, pending, overdue
 
+    private LocalDate paidDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;

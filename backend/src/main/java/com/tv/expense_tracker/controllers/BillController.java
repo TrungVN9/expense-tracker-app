@@ -103,4 +103,40 @@ public class BillController {
         billRepository.delete(existing);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<Bill> payBill(@PathVariable Long id) {
+        Customer customer = getCurrentCustomer();
+        if (customer == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Optional<Bill> existingOpt = billRepository.findById(id);
+        if (existingOpt.isEmpty())
+            return ResponseEntity.notFound().build();
+        Bill existing = existingOpt.get();
+        if (!existing.getCustomer().getId().equals(customer.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        existing.setStatus("paid");
+        existing.setPaidDate(LocalDate.now());
+        Bill saved = billRepository.save(existing);
+        return ResponseEntity.ok(saved);
+    }
+
+    @PostMapping("/{id}/unpay")
+    public ResponseEntity<Bill> unpayBill(@PathVariable Long id) {
+        Customer customer = getCurrentCustomer();
+        if (customer == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Optional<Bill> existingOpt = billRepository.findById(id);
+        if (existingOpt.isEmpty())
+            return ResponseEntity.notFound().build();
+        Bill existing = existingOpt.get();
+        if (!existing.getCustomer().getId().equals(customer.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        existing.setStatus("pending");
+        existing.setPaidDate(null);
+        Bill saved = billRepository.save(existing);
+        return ResponseEntity.ok(saved);
+    }
 }
