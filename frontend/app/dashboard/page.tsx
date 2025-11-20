@@ -9,7 +9,7 @@ import { apiClient } from '@/lib/api';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, TrendingUp, Target, Receipt, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, CircleFadingPlus, TrendingUp, Target, Receipt, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
@@ -300,7 +300,9 @@ function DashboardContent() {
                 </div>
                 <Link href="/transactions">
                   <Button variant="outline" size="sm">
-                    View All
+                    <CircleFadingPlus>
+                    Add Expense/ Income
+                    </CircleFadingPlus>
                   </Button>
                 </Link>
               </div>
