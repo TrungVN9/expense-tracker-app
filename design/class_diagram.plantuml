@@ -1,0 +1,104 @@
+@startuml
+
+' Style and layout
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' Packages for organization
+package "Controllers" {
+    class AuthController
+    class BillController
+    class BudgetController
+    class TransactionController
+    class UserController
+}
+
+package "Services" {
+    class AuthService
+    class CustomerUserDetailsService
+    class TransactionService
+}
+
+package "Repositories" {
+    interface BillRepository
+    interface BudgetRepository
+    interface CustomerRepository
+    interface TransactionRepository
+}
+
+package "Models" {
+    class Bill
+    class Budget
+    class Customer
+    class Transaction
+}
+
+package "Securities" {
+    class JwtAuthFilter
+    class JwtUtil
+    class SecurityConfig
+}
+
+package "Exceptions" {
+    class EmailAlreadyExistsException
+    class RestExceptionHandler
+}
+
+package "DTOs" {
+    class AuthResponse
+    class SignupRequest
+    class LoginRequest
+    class BudgetResponse
+    class TransactionRequest
+    class TransactionDTO
+    class UserDTO
+    class UpdateUserRequest
+}
+
+' Relationships
+
+' Controller -> Service
+AuthController --> AuthService
+BillController --> BillRepository
+BudgetController --> BudgetRepository
+BudgetController --> TransactionRepository
+TransactionController --> TransactionService
+UserController --> CustomerUserDetailsService
+UserController --> CustomerRepository
+
+' Service -> Repository
+AuthService --> CustomerRepository
+CustomerUserDetailsService --> CustomerRepository
+TransactionService --> TransactionRepository
+TransactionService --> CustomerRepository
+
+' Repository -> Model
+BillRepository -- Bill
+BudgetRepository -- Budget
+CustomerRepository -- Customer
+TransactionRepository -- Transaction
+
+' Controller -> DTOs
+AuthController -- AuthResponse
+AuthController -- SignupRequest
+AuthController -- LoginRequest
+BudgetController -- BudgetResponse
+TransactionController -- TransactionRequest
+TransactionController -- TransactionDTO
+UserController -- UserDTO
+UserController -- UpdateUserRequest
+
+' Security
+SecurityConfig --> JwtAuthFilter
+JwtAuthFilter --> JwtUtil
+JwtAuthFilter --> CustomerUserDetailsService
+
+' Exception Handling
+RestExceptionHandler -- EmailAlreadyExistsException
+
+' Model Relationships
+Customer "1" -- "*" Bill
+Customer "1" -- "*" Budget
+Customer "1" -- "*" Transaction
+
+@enduml
