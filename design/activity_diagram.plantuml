@@ -1,0 +1,117 @@
+@startuml
+title Expense Tracker - Activity Diagram
+
+start
+:Launch Application;
+
+partition Authentication {
+  :Enter Email & Password;
+  :Validate Credentials;
+  if (Authenticated?) then (yes)
+    :Load Customer Account;
+  else (no)
+    :Show Authentication Error & Allow Sign Up or Retry;
+    stop
+  endif
+}
+
+:Display Dashboard Overview;
+
+partition Dashboard {
+  :Show Spending/ Earning Summary;
+  :Show Budget Spending Progress and Upcoming Bills Status;
+  :Display Expenses/ Income Transactions & Categories;
+}
+
+switch (User Action)
+  case (Manage Transactions)
+    partition "Transactions Management" {
+      :Create Expense/ Income Transactions;
+      :Select Category for Transaction;
+      :Set Date Spending/ Earning; 
+      :Add Notes;
+      :Update Account Totals;
+      :Display Updated Transactions List;
+      :Update Total Spending/ Income Summary;
+      :Update Budget Thresholds if Applicable;
+    }
+    --> back to Dashboard
+
+    case (Manage Bills)
+    partition "Bills Management" {
+        :Add New Bill with Due Date & Amount;
+        :Edit/ Delete Existing Bill Details;
+        :Mark Bill as Paid;
+        :Update Upcoming Bills Status on Dashboard;
+    }
+    --> back to Dashboard
+
+    case (Manage Budgets)
+    partition "Budgets Management" {
+        :Set Monthly/Weekly/Quarterly/ Yearly Budget Limits by Category;
+        :Edit/ Delete Existing Budgets;
+        :Track Budget Spending Progress;
+        :Update Budget Spending Progress on Dashboard;
+    }
+    --> back to Dashboard
+
+  case (Set or Track Goals)
+    partition "Saving Goals" {
+      :Create/Update Goals;
+      :Track Goal Progress;
+      if (Goal Achieved?) then (yes)
+          :Notify Goal Completion;
+      else (no)
+          :Notify Falling Behind;
+      endif
+    }
+    --> back to Dashboard
+
+'  case (View Reports)
+'    partition "Reporting" {
+'      :Generate Report (Expenses + Goals);
+'      :Export Report to CSV;
+'    }
+'    --> back to Dashboard
+
+  case (Manage Profile)
+    partition "Profile Management" {
+      :Update Name/DOB/ Address/ Occupation;
+      :Save Preferences;
+    }
+    --> back to Dashboard
+
+'  case (View Notifications)
+'    partition "Notifications" {
+'      :Monitor Budgets and Goals;
+'      :Trigger Alerts;
+'      :Send In-App Notification;
+'    }
+'    --> back to Dashboard
+
+'  case (Set Reminders)
+'    partition "Reminders" {
+'      :Create/Edit Reminder;
+'      :Schedule Due Date Alerts;
+'      :Convert Paid Reminder to Expense;
+'    }
+'    --> back to Dashboard
+
+  case (Filter or Search Expenses)
+    partition "Expense Filtering" {
+      :Search or Filter Expenses;
+      :Display Filtered Results;
+    }
+    --> back to Dashboard
+
+  case (Logout)
+    partition "Logout" {
+      :Save User Session;
+      :Sign Out of Session;
+      stop
+    }
+endswitch
+
+:Return to Dashboard or Logout;
+stop
+@enduml
