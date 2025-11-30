@@ -127,6 +127,9 @@ To get the application up and running locally, follow these steps:
 
 ![Profile](frontend/public/img13.png)
 
+### Saving
+[Savings account management -- track and manage your savings]
+![Profile](frontend/public/img15.png)
 ### Profile
 
 [Profile management and settings -- update personal information and preferences]
