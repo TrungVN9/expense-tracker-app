@@ -3,10 +3,7 @@ package com.tv.expense_tracker;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.expense_tracker.controllers.dtos.LoginRequest;
 import com.tv.expense_tracker.models.Customer;
-import com.tv.expense_tracker.repositories.BillRepository;
-import com.tv.expense_tracker.repositories.BudgetRepository;
-import com.tv.expense_tracker.repositories.CustomerRepository;
-import com.tv.expense_tracker.repositories.TransactionRepository;
+import com.tv.expense_tracker.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +42,12 @@ class ExpenseTrackerApplicationTests {
 	private BudgetRepository budgetRepository;
 
 	@Autowired
+	private SavingRepository savingRepository;
+
+	@Autowired
+	private SavingTransactionRepository savingTransactionRepository;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Autowired
@@ -52,6 +55,8 @@ class ExpenseTrackerApplicationTests {
 
 	@BeforeEach
 	public void setup() {
+		savingTransactionRepository.deleteAll();
+		savingRepository.deleteAll();
 		billRepository.deleteAll();
 		budgetRepository.deleteAll();
 		transactionRepository.deleteAll();

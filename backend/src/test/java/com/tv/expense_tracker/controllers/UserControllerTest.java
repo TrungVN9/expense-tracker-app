@@ -2,7 +2,7 @@ package com.tv.expense_tracker.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.expense_tracker.models.Customer;
-import com.tv.expense_tracker.repositories.CustomerRepository;
+import com.tv.expense_tracker.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +31,32 @@ public class UserControllerTest {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private SavingTransactionRepository savingTransactionRepository;
+
+    @Autowired
+    private SavingRepository savingRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+
     private Customer testCustomer;
 
     @BeforeEach
     public void setup() {
+        savingTransactionRepository.deleteAll();
+        savingRepository.deleteAll();
+        transactionRepository.deleteAll();
+        billRepository.deleteAll();
+        budgetRepository.deleteAll();
         customerRepository.deleteAll();
+
         testCustomer = new Customer();
         testCustomer.setEmail("test@example.com");
         testCustomer.setPassword("password");

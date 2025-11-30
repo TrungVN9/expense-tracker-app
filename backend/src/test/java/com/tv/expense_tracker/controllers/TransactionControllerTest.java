@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.expense_tracker.controllers.dtos.TransactionRequest;
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.models.Transaction;
-import com.tv.expense_tracker.repositories.CustomerRepository;
-import com.tv.expense_tracker.repositories.TransactionRepository;
+import com.tv.expense_tracker.repositories.*;
 import com.tv.expense_tracker.services.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,9 +47,25 @@ public class TransactionControllerTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private SavingTransactionRepository savingTransactionRepository;
+
+    @Autowired
+    private SavingRepository savingRepository;
+
+    @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+
     @BeforeEach
     public void setup() {
+        savingTransactionRepository.deleteAll();
+        savingRepository.deleteAll();
         transactionRepository.deleteAll();
+        billRepository.deleteAll();
+        budgetRepository.deleteAll();
         customerRepository.deleteAll();
     }
 

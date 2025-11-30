@@ -62,3 +62,14 @@ CREATE TABLE IF NOT EXISTS savings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
+
+-- Create saving_transactions table (if not exists)
+CREATE TABLE IF NOT EXISTS saving_transactions (
+    id BIGSERIAL PRIMARY KEY,
+    saving_id BIGINT NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    amount NUMERIC(19, 2) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (saving_id) REFERENCES savings(id) ON DELETE CASCADE
+);

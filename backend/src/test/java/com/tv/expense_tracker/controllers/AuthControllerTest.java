@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.expense_tracker.controllers.dtos.LoginRequest;
 import com.tv.expense_tracker.controllers.dtos.SignupRequest;
 import com.tv.expense_tracker.models.Customer;
-import com.tv.expense_tracker.repositories.CustomerRepository;
-import com.tv.expense_tracker.services.AuthService;
+import com.tv.expense_tracker.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,28 @@ public class AuthControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private SavingTransactionRepository savingTransactionRepository;
+
+    @Autowired
+    private SavingRepository savingRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+
     @BeforeEach
     public void setup() {
+        savingTransactionRepository.deleteAll();
+        savingRepository.deleteAll();
+        transactionRepository.deleteAll();
+        billRepository.deleteAll();
+        budgetRepository.deleteAll();
         customerRepository.deleteAll();
     }
 

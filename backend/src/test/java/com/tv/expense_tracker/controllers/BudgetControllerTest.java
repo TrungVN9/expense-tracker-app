@@ -3,10 +3,7 @@ package com.tv.expense_tracker.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tv.expense_tracker.models.Budget;
 import com.tv.expense_tracker.models.Customer;
-import com.tv.expense_tracker.repositories.BudgetRepository;
-import com.tv.expense_tracker.repositories.CustomerRepository;
-import com.tv.expense_tracker.repositories.BillRepository;
-import com.tv.expense_tracker.repositories.TransactionRepository;
+import com.tv.expense_tracker.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +42,18 @@ public class BudgetControllerTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private SavingTransactionRepository savingTransactionRepository;
+
+    @Autowired
+    private SavingRepository savingRepository;
+
     private Customer testCustomer;
 
     @BeforeEach
     public void setup() {
+        savingTransactionRepository.deleteAll();
+        savingRepository.deleteAll();
         transactionRepository.deleteAll();
         billRepository.deleteAll();
         budgetRepository.deleteAll();

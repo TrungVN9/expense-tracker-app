@@ -1,7 +1,9 @@
 package com.tv.expense_tracker.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tv.expense_tracker.controllers.dtos.AmountRequest;
 import com.tv.expense_tracker.controllers.dtos.SavingRequest;
+import com.tv.expense_tracker.controllers.dtos.TransferRequest;
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.models.Saving;
 import com.tv.expense_tracker.repositories.*;
@@ -20,6 +22,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.is;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,10 +50,14 @@ public class SavingControllerTest {
     @Autowired
     private BudgetRepository budgetRepository;
 
+    @Autowired
+    private SavingTransactionRepository savingTransactionRepository;
+
     private Customer testCustomer;
 
     @BeforeEach
     public void setup() {
+        savingTransactionRepository.deleteAll();
         savingRepository.deleteAll();
         transactionRepository.deleteAll();
         billRepository.deleteAll();
@@ -129,6 +137,80 @@ public class SavingControllerTest {
         saving = savingRepository.save(saving);
 
         mockMvc.perform(delete("/api/savings/" + saving.getId()).with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(username = "test@example.com")
+    public void testDeposit_Success() throws Exception {
+        Saving saving = new Saving();
+        saving.setName("Test Account");
+        saving.setAccountType("hysa");
+        saving.setBalance(new BigDecimal("1000.00"));
+        saving.setCustomer(testCustomer);
+        saving = savingRepository.save(saving);
+
+        AmountRequest depositRequest = new AmountRequest();
+        depositRequest.setAmount(new BigDecimal("200.00"));
+        depositRequest.setDescription("Monthly savings deposit");
+
+        mockMvc.perform(post("/api/savings/" + saving.getId() + "/deposit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(depositRequest))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.balance", is(1200.00)));
+    }
+
+    @Test
+    @WithMockUser(username = "test@example.com")
+    public void testWithdraw_Success() throws Exception {
+        Saving saving = new Saving();
+        saving.setName("Test Account");
+        saving.setAccountType("hysa");
+        saving.setBalance(new BigDecimal("1000.00"));
+        saving.setCustomer(testCustomer);
+        saving = savingRepository.save(saving);
+
+        AmountRequest withdrawRequest = new AmountRequest();
+        withdrawRequest.setAmount(new BigDecimal("200.00"));
+        withdrawRequest.setDescription("ATM withdrawal");
+
+        mockMvc.perform(post("/api/savings/" + saving.getId() + "/withdraw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(withdrawRequest))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.balance", is(800.00)));
+    }
+
+    @Test
+    @WithMockUser(username = "test@example.com")
+    public void testTransfer_Success() throws Exception {
+        Saving fromSaving = new Saving();
+        fromSaving.setName("From Account");
+        fromSaving.setAccountType("hysa");
+        fromSaving.setBalance(new BigDecimal("1000.00"));
+        fromSaving.setCustomer(testCustomer);
+        fromSaving = savingRepository.save(fromSaving);
+
+        Saving toSaving = new Saving();
+        toSaving.setName("To Account");
+        toSaving.setAccountType("other");
+        toSaving.setBalance(new BigDecimal("500.00"));
+        toSaving.setCustomer(testCustomer);
+        toSaving = savingRepository.save(toSaving);
+
+        TransferRequest transferRequest = new TransferRequest();
+        transferRequest.setFromId(fromSaving.getId());
+        transferRequest.setToId(toSaving.getId());
+        transferRequest.setAmount(new BigDecimal("300.00"));
+        transferRequest.setDescription("Transfer to another account");
+
+        mockMvc.perform(post("/api/savings/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(transferRequest))
+                        .with(csrf()))
                 .andExpect(status().isNoContent());
     }
 }
