@@ -1,8 +1,10 @@
 package com.tv.expense_tracker.controllers;
 
 import com.tv.expense_tracker.controllers.dtos.SavingRequest;
+import com.tv.expense_tracker.controllers.dtos.SavingResponse;
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.models.Saving;
+import com.tv.expense_tracker.services.SavingService;
 import com.tv.expense_tracker.repositories.CustomerRepository;
 import com.tv.expense_tracker.repositories.SavingRepository;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +24,7 @@ import java.util.Optional;
 public class SavingController {
 
     private final SavingRepository savingRepository;
+    private final SavingService savingService;
     private final CustomerRepository customerRepository;
 
     private Customer getCurrentCustomer() {
@@ -32,36 +36,29 @@ public class SavingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Saving>> getSavings() {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<SavingResponse>> getSavings() {
         Customer customer = getCurrentCustomer();
         if (customer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Saving> savings = savingRepository.findByCustomer(customer);
-        return ResponseEntity.ok(savings);
+        return ResponseEntity.ok(savingService.getSavingsForCustomer(customer));
     }
 
     @PostMapping
-    public ResponseEntity<Saving> createSaving(@RequestBody SavingRequest payload) {
+    @Transactional
+    public ResponseEntity<SavingResponse> createSaving(@RequestBody SavingRequest payload) {
         Customer customer = getCurrentCustomer();
         if (customer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Saving newSaving = new Saving();
-        newSaving.setCustomer(customer);
-        newSaving.setName(payload.getAccountName());
-        newSaving.setAccountType(payload.getAccountType());
-        newSaving.setBalance(payload.getBalance());
-        newSaving.setInterestRate(payload.getInterestRate());
-        newSaving.setGoal(payload.getGoal());
-        newSaving.setDescription(payload.getDescription());
-
-        Saving saved = savingRepository.save(newSaving);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        SavingResponse r = savingService.createForCustomer(customer, payload);
+        return ResponseEntity.status(HttpStatus.CREATED).body(r);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Saving> updateSaving(@PathVariable Long id, @RequestBody SavingRequest payload) {
+    @Transactional
+    public ResponseEntity<SavingResponse> updateSaving(@PathVariable Long id, @RequestBody SavingRequest payload) {
         Customer customer = getCurrentCustomer();
         if (customer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -75,15 +72,8 @@ public class SavingController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        existing.setName(payload.getAccountName());
-        existing.setAccountType(payload.getAccountType());
-        existing.setBalance(payload.getBalance());
-        existing.setInterestRate(payload.getInterestRate());
-        existing.setGoal(payload.getGoal());
-        existing.setDescription(payload.getDescription());
-
-        Saving saved = savingRepository.save(existing);
-        return ResponseEntity.ok(saved);
+        SavingResponse r = savingService.updateForCustomer(existing, payload);
+        return ResponseEntity.ok(r);
     }
 
     @DeleteMapping("/{id}")

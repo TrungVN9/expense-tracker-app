@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.tv.expense_tracker.ExpenseTrackerApplicationTests" time="4.578" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.tv.expense_tracker.controllers.SavingControllerTest" time="0.123" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="24"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -47,7 +47,7 @@
     <property name="localRepository" value="/Users/trungnvong/.m2/repository"/>
     <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
     <property name="java.io.tmpdir" value="/var/folders/6f/kt8n53392l577swhmdr9fqq40000gn/T/"/>
-    <property name="com.zaxxer.hikari.pool_number" value="1"/>
+    <property name="com.zaxxer.hikari.pool_number" value="2"/>
     <property name="java.version" value="24.0.2"/>
     <property name="user.dir" value="/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend"/>
     <property name="os.arch" value="aarch64"/>
@@ -64,70 +64,63 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="68.0"/>
   </properties>
-  <testcase name="testLogin_Success" classname="com.tv.expense_tracker.ExpenseTrackerApplicationTests" time="1.077">
-    <system-out><![CDATA[21:23:59.125 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.tv.expense_tracker.ExpenseTrackerApplicationTests]: ExpenseTrackerApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-21:23:59.220 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.tv.expense_tracker.ExpenseTrackerApplication for test class com.tv.expense_tracker.ExpenseTrackerApplicationTests
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
-
- :: Spring Boot ::                (v3.5.7)
-
-2025-11-29T21:23:59.558-08:00  INFO 77723 --- [           main] c.t.e.ExpenseTrackerApplicationTests     : Starting ExpenseTrackerApplicationTests using Java 24.0.2 with PID 77723 (started by trungnvong in /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend)
-2025-11-29T21:23:59.559-08:00  INFO 77723 --- [           main] c.t.e.ExpenseTrackerApplicationTests     : No active profile set, falling back to 1 default profile: "default"
-2025-11-29T21:24:00.126-08:00  INFO 77723 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-11-29T21:24:00.183-08:00  INFO 77723 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 5 JPA repository interfaces.
-2025-11-29T21:24:00.465-08:00  INFO 77723 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-11-29T21:24:00.585-08:00  INFO 77723 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1578b8ec
-2025-11-29T21:24:00.586-08:00  INFO 77723 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-11-29T21:24:00.655-08:00  INFO 77723 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-11-29T21:24:00.690-08:00  INFO 77723 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.33.Final
-2025-11-29T21:24:00.718-08:00  INFO 77723 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-11-29T21:24:00.924-08:00  INFO 77723 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-11-29T21:24:00.959-08:00  WARN 77723 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-11-29T21:24:00.969-08:00  INFO 77723 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 18.1
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2025-11-29T21:24:01.607-08:00  INFO 77723 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-11-29T21:24:01.708-08:00  INFO 77723 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-11-29T21:24:01.908-08:00  INFO 77723 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailsService
-2025-11-29T21:24:02.025-08:00  WARN 77723 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-11-29T21:24:02.461-08:00  INFO 77723 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2025-11-29T21:24:02.461-08:00  INFO 77723 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2025-11-29T21:24:02.462-08:00  INFO 77723 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2025-11-29T21:24:02.483-08:00  INFO 77723 --- [           main] c.t.e.ExpenseTrackerApplicationTests     : Started ExpenseTrackerApplicationTests in 3.166 seconds (process running for 3.922)
+  <testcase name="testUpdateSaving_Success" classname="com.tv.expense_tracker.controllers.SavingControllerTest" time="0.04">
+    <system-out><![CDATA[2025-11-29T21:24:05.958-08:00  INFO 77723 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tv.expense_tracker.controllers.SavingControllerTest]: SavingControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-29T21:24:05.960-08:00  INFO 77723 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tv.expense_tracker.ExpenseTrackerApplication for test class com.tv.expense_tracker.controllers.SavingControllerTest
+Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.customer_id,t1_0.date,t1_0.description,t1_0.type from transactions t1_0
 Hibernate: select b1_0.id,b1_0.amount,b1_0.category,b1_0.customer_id,b1_0.due_date,b1_0.frequency,b1_0.name,b1_0.paid_date,b1_0.recurring,b1_0.status from bills b1_0
 Hibernate: select b1_0.id,b1_0.budget_limit,b1_0.category,b1_0.customer_id,b1_0.period from budgets b1_0
 Hibernate: delete from budgets where id=?
+Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0
+Hibernate: delete from customers where id=?
+Hibernate: insert into customers (address,date_of_birth,email,full_name,occupation,password,phone,username) values (?,?,?,?,?,?,?,?)
+Hibernate: insert into savings (account_type,balance,created_at,customer_id,description,goal,interest_rate,name,updated_at) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0 where c1_0.email=?
+Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0 where s1_0.id=?
+Hibernate: update savings set account_type=?,balance=?,customer_id=?,description=?,goal=?,interest_rate=?,name=?,updated_at=? where id=?
+]]></system-out>
+  </testcase>
+  <testcase name="testGetSavings_Success" classname="com.tv.expense_tracker.controllers.SavingControllerTest" time="0.023">
+    <system-out><![CDATA[Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0
+Hibernate: delete from savings where id=?
 Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.customer_id,t1_0.date,t1_0.description,t1_0.type from transactions t1_0
+Hibernate: select b1_0.id,b1_0.amount,b1_0.category,b1_0.customer_id,b1_0.due_date,b1_0.frequency,b1_0.name,b1_0.paid_date,b1_0.recurring,b1_0.status from bills b1_0
+Hibernate: select b1_0.id,b1_0.budget_limit,b1_0.category,b1_0.customer_id,b1_0.period from budgets b1_0
+Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0
+Hibernate: delete from customers where id=?
+Hibernate: insert into customers (address,date_of_birth,email,full_name,occupation,password,phone,username) values (?,?,?,?,?,?,?,?)
+Hibernate: insert into savings (account_type,balance,created_at,customer_id,description,goal,interest_rate,name,updated_at) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0 where c1_0.email=?
+Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0 where s1_0.customer_id=?
+]]></system-out>
+  </testcase>
+  <testcase name="testCreateSaving_Success" classname="com.tv.expense_tracker.controllers.SavingControllerTest" time="0.024">
+    <system-out><![CDATA[Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0
+Hibernate: delete from savings where id=?
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.customer_id,t1_0.date,t1_0.description,t1_0.type from transactions t1_0
+Hibernate: select b1_0.id,b1_0.amount,b1_0.category,b1_0.customer_id,b1_0.due_date,b1_0.frequency,b1_0.name,b1_0.paid_date,b1_0.recurring,b1_0.status from bills b1_0
+Hibernate: select b1_0.id,b1_0.budget_limit,b1_0.category,b1_0.customer_id,b1_0.period from budgets b1_0
 Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0
 Hibernate: delete from customers where id=?
 Hibernate: insert into customers (address,date_of_birth,email,full_name,occupation,password,phone,username) values (?,?,?,?,?,?,?,?)
 Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0 where c1_0.email=?
-Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0 where c1_0.email=?
+Hibernate: insert into savings (account_type,balance,created_at,customer_id,description,goal,interest_rate,name,updated_at) values (?,?,?,?,?,?,?,?,?)
 ]]></system-out>
-    <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
-WARNING: A Java agent has been loaded dynamically (/Users/trungnvong/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
   </testcase>
-  <testcase name="contextLoads" classname="com.tv.expense_tracker.ExpenseTrackerApplicationTests" time="0.033">
-    <system-out><![CDATA[Hibernate: select b1_0.id,b1_0.amount,b1_0.category,b1_0.customer_id,b1_0.due_date,b1_0.frequency,b1_0.name,b1_0.paid_date,b1_0.recurring,b1_0.status from bills b1_0
-Hibernate: select b1_0.id,b1_0.budget_limit,b1_0.category,b1_0.customer_id,b1_0.period from budgets b1_0
+  <testcase name="testDeleteSaving_Success" classname="com.tv.expense_tracker.controllers.SavingControllerTest" time="0.027">
+    <system-out><![CDATA[Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0
+Hibernate: delete from savings where id=?
 Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.customer_id,t1_0.date,t1_0.description,t1_0.type from transactions t1_0
+Hibernate: select b1_0.id,b1_0.amount,b1_0.category,b1_0.customer_id,b1_0.due_date,b1_0.frequency,b1_0.name,b1_0.paid_date,b1_0.recurring,b1_0.status from bills b1_0
+Hibernate: select b1_0.id,b1_0.budget_limit,b1_0.category,b1_0.customer_id,b1_0.period from budgets b1_0
 Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0
 Hibernate: delete from customers where id=?
+Hibernate: insert into customers (address,date_of_birth,email,full_name,occupation,password,phone,username) values (?,?,?,?,?,?,?,?)
+Hibernate: insert into savings (account_type,balance,created_at,customer_id,description,goal,interest_rate,name,updated_at) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select c1_0.id,c1_0.address,c1_0.date_of_birth,c1_0.email,c1_0.full_name,c1_0.occupation,c1_0.password,c1_0.phone,c1_0.username from customers c1_0 where c1_0.email=?
+Hibernate: select s1_0.id,s1_0.account_type,s1_0.balance,s1_0.created_at,s1_0.customer_id,s1_0.description,s1_0.goal,s1_0.interest_rate,s1_0.name,s1_0.updated_at from savings s1_0 where s1_0.id=?
+Hibernate: delete from savings where id=?
 ]]></system-out>
   </testcase>
 </testsuite>

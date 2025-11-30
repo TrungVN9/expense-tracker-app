@@ -47,3 +47,18 @@ CREATE TABLE IF NOT EXISTS budgets (
     customer_id BIGINT NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
+
+-- Create savings table (if not exists)
+CREATE TABLE IF NOT EXISTS savings (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    account_type VARCHAR(255) NOT NULL,
+    balance NUMERIC(19, 2) NOT NULL,
+    interest_rate NUMERIC(5, 2),
+    goal NUMERIC(19, 2),
+    description TEXT,
+    customer_id BIGINT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);

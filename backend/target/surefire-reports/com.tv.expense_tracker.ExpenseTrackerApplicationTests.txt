@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.tv.expense_tracker.ExpenseTrackerApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.938 s -- in com.tv.expense_tracker.ExpenseTrackerApplicationTests
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.578 s -- in com.tv.expense_tracker.ExpenseTrackerApplicationTests
