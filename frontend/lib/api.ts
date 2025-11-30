@@ -104,6 +104,20 @@ export interface Saving {
   description?: string
 }
 
+export interface SavingTransaction {
+  id?: number
+  type: 'deposit' | 'withdrawal' | 'transfer_in' | 'transfer_out' | string
+  amount: number
+  description?: string
+  createdAt?: string
+}
+
+export interface InterestProjection {
+  month: string
+  interest: number
+  balance: number
+}
+
 export interface SavingRequest {
   accountName: string
   accountType: string
@@ -117,7 +131,15 @@ class ApiClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
-    this.baseUrl = baseUrl;
+    // Normalize baseUrl (remove trailing slash) to avoid accidental same-origin requests
+    this.baseUrl = baseUrl.replace(/\/$/, '');
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      if (this.baseUrl.includes('localhost:3000')) {
+        // eslint-disable-next-line no-console
+        console.warn('[ApiClient] Using frontend host as API base URL; backend requests may be proxied to Next.js. Set NEXT_PUBLIC_API_URL to your backend URL (e.g., http://localhost:8080).');
+      }
+    }
   }
 
   /**
@@ -170,9 +192,21 @@ class ApiClient {
     options: RequestInit = {},
     withAuth = true
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Build URL robustly even if endpoint does not have leading slash
+    const url = (() => {
+      try {
+        return new URL(endpoint, this.baseUrl).toString();
+      } catch (e) {
+        return `${this.baseUrl}${endpoint}`;
+      }
+    })();
 
     try {
+      // Debug: log request in development mode
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.debug('[ApiClient] Request', { method: options.method || 'GET', url, withAuth });
+      }
       const response = await fetch(url, {
         ...options,
         headers: this.getHeaders(withAuth),
@@ -416,6 +450,39 @@ class ApiClient {
   async deleteSaving(id: string): Promise<void> {
     return this.request<void>(`/api/savings/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async depositToSaving(id: string, amount: number, description?: string): Promise<Saving> {
+    return this.request<Saving>(`/api/savings/${id}/deposit`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, description }),
+    });
+  }
+
+  async withdrawFromSaving(id: string, amount: number, description?: string): Promise<Saving> {
+    return this.request<Saving>(`/api/savings/${id}/withdraw`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, description }),
+    });
+  }
+
+  async getSavingTransactions(id: string): Promise<SavingTransaction[]> {
+    return this.request<SavingTransaction[]>(`/api/savings/${id}/transactions`, {
+      method: 'GET',
+    });
+  }
+
+  async getInterestProjection(id: string, months = 12): Promise<InterestProjection[]> {
+    return this.request<InterestProjection[]>(`/api/savings/${id}/projection?months=${months}`, {
+      method: 'GET',
+    });
+  }
+
+  async transferBetweenSavings(fromId: string, toId: string, amount: number, description?: string): Promise<void> {
+    return this.request<void>(`/api/savings/transfer`, {
+      method: 'POST',
+      body: JSON.stringify({ fromId, toId, amount, description }),
     });
   }
 

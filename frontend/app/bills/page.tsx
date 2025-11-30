@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LayoutDashboard, CreditCard, UserCircle, LogOut, Wallet, Receipt, Plus, Pencil, Trash2, Calendar, DollarSign, X, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, CreditCard, UserCircle, LogOut, PiggyBank, Wallet, Receipt, Plus, Pencil, Trash2, Calendar, DollarSign, X, CheckCircle } from 'lucide-react';
 
 interface Bill {
   id: string;
@@ -155,6 +155,7 @@ function BillsContent() {
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: false },
     { href: '/bills', icon: Receipt, label: 'Bills', active: true },
     { href: '/budgets', icon: Wallet, label: 'Budgets', active: false },
+    { href: "/savings", icon: PiggyBank, label: "Savings", active: false },
   ];
 
   const bottomNavItems = [

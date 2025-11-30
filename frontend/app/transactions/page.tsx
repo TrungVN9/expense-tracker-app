@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LayoutDashboard, CreditCard, Settings, Receipt, UserCircle, LogOut, Wallet, Target, BookOpen, FileText, Landmark, ArrowLeft, Plus, Calendar, DollarSign, Tag, FileTextIcon } from 'lucide-react';
+import { LayoutDashboard, CreditCard, Settings, PiggyBank, Receipt, UserCircle, LogOut, Wallet, Target, BookOpen, FileText, Landmark, ArrowLeft, Plus, Calendar, DollarSign, Tag, FileTextIcon } from 'lucide-react';
 
 function TransactionsContent() {
   const router = useRouter();
@@ -71,6 +71,8 @@ function TransactionsContent() {
     { href: '/transactions', icon: CreditCard, label: 'Transactions', active: true },
     { href: '/bills', icon: Receipt, label: 'Bills', active: false },
     { href: '/budgets', icon: Wallet, label: 'Budgets', active: false },
+    { href: "/savings", icon: PiggyBank, label: "Savings", active: false },
+  
   ];
   const bottomNavItems = [
     { href: '/profile', icon: UserCircle, label: 'Profile' },
