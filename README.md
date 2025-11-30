@@ -111,20 +111,24 @@ To get the application up and running locally, follow these steps:
 
 ![Sign In](frontend/public/img2.png)
 
+### Dashboard
+[Comprehensive financial overview with charts and summaries]
+![Dashboard](frontend/public/img10.png)
+
 ### Bills
 
-[Bill tracking and management -- view pending and paid bills
+[Bill tracking and management -- view pending and paid bills]
 
-![Profile](frontend/public/img9.png)
+![Profile](frontend/public/img14.png)
 
 ### Budgets
 
 [Budget creation and management -- set spending limits for different categories]
 
-![Profile](frontend/public/img4.png)
+![Profile](frontend/public/img13.png)
 
 ### Profile
 
 [Profile management and settings -- update personal information and preferences]
 
-![Profile](frontend/public/img5.png)
+![Profile](frontend/public/img11.png)

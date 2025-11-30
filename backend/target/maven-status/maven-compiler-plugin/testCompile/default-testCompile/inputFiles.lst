@@ -1,3 +1,9 @@
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/ExpenseTrackerApplicationTests.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/controllers/AuthControllerTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/controllers/BillControllerTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/controllers/BudgetControllerTest.java
 /Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/controllers/TransactionControllerTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/controllers/UserControllerTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/services/AuthServiceTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/services/CustomerUserDetailsServiceTest.java
+/Users/trungnvong/Desktop/grad_Fall25/expense-tracker-app/backend/src/test/java/com/tv/expense_tracker/services/TransactionServiceTest.java
