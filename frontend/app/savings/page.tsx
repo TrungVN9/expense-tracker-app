@@ -60,7 +60,17 @@ function SavingsContent() {
     setLoading(true)
     try {
       const data = await apiClient.getSavings()
-      setSavings(data || [])
+      const transformedSavings: Saving[] = (data || []).map((saving: any) => ({
+        accountName: saving.name,
+        accountType: saving.accountType,
+        balance: saving.balance,
+        interestRate: saving.interestRate,
+        goal: saving.goal,
+        description: saving.description,
+        id: saving.id,
+        lastUpdated: saving.updatedAt,
+      }));
+      setSavings(transformedSavings)
     } catch (err) {
       console.error("Failed to load savings", err)
     } finally {
@@ -81,10 +91,12 @@ function SavingsContent() {
     e.preventDefault()
     try {
       const savingData = {
-        ...formData,
-        balance: Number.parseFloat(formData.balance),
+        accountName: formData.accountName,
+        accountType: formData.accountType,
+        balance: Number.parseFloat(formData.balance) || 0,
         interestRate: formData.interestRate ? Number.parseFloat(formData.interestRate) : undefined,
         goal: formData.goal ? Number.parseFloat(formData.goal) : undefined,
+        description: formData.description || undefined,
       }
 
       if (editingSaving) {
@@ -475,7 +487,7 @@ function SavingsContent() {
                     placeholder="Add notes about this account..."
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex min-h-20 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 

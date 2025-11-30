@@ -93,6 +93,26 @@ export interface DashboardSummary {
   budgets?: BudgetResponse[];
 }
 
+export interface Saving {
+  id?: string
+  name: string
+  // backend is flexible about accountType, use string to avoid enum mismatch
+  accountType: string
+  balance: number
+  interestRate?: number
+  goal?: number
+  description?: string
+}
+
+export interface SavingRequest {
+  accountName: string
+  accountType: string
+  balance: number
+  interestRate?: number
+  goal?: number
+  description?: string
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -368,6 +388,33 @@ class ApiClient {
 
   async deleteBudget(id: number | string): Promise<void> {
     return this.request<void>(`/api/budgets/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Saving Endpoints 
+  async createSaving(data: SavingRequest): Promise<Saving>{
+    return this.request<Saving>('/api/savings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getSavings(): Promise<Saving[]> {
+    return this.request<Saving[]>('/api/savings', {
+      method: 'GET',
+    });
+  }
+
+  async updateSaving(id: string, data: Partial<SavingRequest>): Promise<Saving> {
+    return this.request<Saving>(`/api/savings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSaving(id: string): Promise<void> {
+    return this.request<void>(`/api/savings/${id}`, {
       method: 'DELETE',
     });
   }
