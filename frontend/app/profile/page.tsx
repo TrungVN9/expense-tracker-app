@@ -368,7 +368,7 @@ function ProfileContent() {
           </Card>
 
           {/* Account Statistics */}
-          <div className="grid gap-6 md:grid-cols-3">
+          {/*<div className="grid gap-6 md:grid-cols-3">
             <Card className="border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -404,7 +404,8 @@ function ProfileContent() {
                 <p className="text-xs text-muted-foreground mt-1">Active categories</p>
               </CardContent>
             </Card>
-          </div>
+
+          </div>*/}
         </div>
       </main>
     </div>
