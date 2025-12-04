@@ -4,60 +4,35 @@
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 
+left to right direction
+
 ' Packages for organization
-package "Controllers" {
+package "Controllers (API Layer)" {
     class AuthController
     class BillController
     class BudgetController
     class TransactionController
     class UserController
+    class SavingController
 }
 
-package "Services" {
+package "Services (Business Logic)" {
     class AuthService
     class CustomerUserDetailsService
     class TransactionService
+    class SavingService
 }
 
-package "Repositories" {
+package "Repositories (Data Access)" {
     interface BillRepository
     interface BudgetRepository
     interface CustomerRepository
     interface TransactionRepository
+    interface SavingRepository
+    interface SavingTransactionRepository
 }
 
-package "Models" {
-    class Bill
-    class Budget
-    class Customer
-    class Transaction
-}
-
-package "Securities" {
-    class JwtAuthFilter
-    class JwtUtil
-    class SecurityConfig
-}
-
-package "Exceptions" {
-    class EmailAlreadyExistsException
-    class RestExceptionHandler
-}
-
-package "DTOs" {
-    class AuthResponse
-    class SignupRequest
-    class LoginRequest
-    class BudgetResponse
-    class TransactionRequest
-    class TransactionDTO
-    class UserDTO
-    class UpdateUserRequest
-}
-
-' Relationships
-
-' Controller -> Service
+' 1. Controller -> Service (Strict Layering)
 AuthController --> AuthService
 BillController --> BillRepository
 BudgetController --> BudgetRepository
@@ -65,18 +40,55 @@ BudgetController --> TransactionRepository
 TransactionController --> TransactionService
 UserController --> CustomerUserDetailsService
 UserController --> CustomerRepository
+SavingController --> SavingService
+SavingController --> SavingTransactionRepository
 
-' Service -> Repository
+' 2. Service -> Repository
 AuthService --> CustomerRepository
 CustomerUserDetailsService --> CustomerRepository
 TransactionService --> TransactionRepository
 TransactionService --> CustomerRepository
+SavingService --> SavingRepository
+SavingService --> SavingTransactionRepository
 
-' Repository -> Model
+package "Models (Domain Objects)" {
+    class Bill
+    class Budget
+    class Customer
+    class Transaction
+    class Saving
+    class SavingTransaction
+}
+
+package "Securities (Cross-Cutting Concern)" {
+    class JwtAuthFilter
+    class JwtUtil
+    class SecurityConfig
+}
+
+
+package "DTOs (Data Transfer Objects)" {
+    class AuthResponse
+    class SignupRequest
+    class LoginRequest
+    class BudgetResponse
+    class TransactionRequest
+    class TransferRequest
+    class AmountRequest
+    class InterestProjectionEntry
+    class SavingTransactionResponse
+    class SavingRequest
+    class SavingResponse
+
+}
+
+' 3. Repository -> Models
 BillRepository -- Bill
 BudgetRepository -- Budget
 CustomerRepository -- Customer
 TransactionRepository -- Transaction
+SavingRepository -- Saving
+SavingTransactionRepository -- SavingTransaction
 
 ' Controller -> DTOs
 AuthController -- AuthResponse
@@ -87,18 +99,23 @@ TransactionController -- TransactionRequest
 TransactionController -- TransactionDTO
 UserController -- UserDTO
 UserController -- UpdateUserRequest
+SavingController -- SavingRequest
+SavingController -- SavingResponse
+SavingController -- SavingTransactionResponse
+SavingController -- TransferRequest
+SavingController -- AmountRequest
+SavingController -- InterestProjectionEntry
 
 ' Security
 SecurityConfig --> JwtAuthFilter
 JwtAuthFilter --> JwtUtil
 JwtAuthFilter --> CustomerUserDetailsService
 
-' Exception Handling
-RestExceptionHandler -- EmailAlreadyExistsException
-
 ' Model Relationships
 Customer "1" -- "*" Bill
 Customer "1" -- "*" Budget
 Customer "1" -- "*" Transaction
+Customer "1" -- "*" Saving
+Saving "1" -- "*" SavingTransaction
 
 @enduml
