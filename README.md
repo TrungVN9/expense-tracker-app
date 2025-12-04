@@ -30,6 +30,8 @@ The frontend is a responsive and dynamic single-page application built with **Ne
     *   **Bills:** Enables the tracking and management of recurring payments.
     *   **Budgets:** Allows for the creation and monitoring of spending budgets.
     *   **Profile:** Provides user account management and settings.
+    *  **Savings:** Enables users to manage their savings accounts and transactions.
+    *  **Authentication:** Manages user login and registration processes.
 
 ### Backend
 
@@ -58,6 +60,12 @@ The backend exposes a comprehensive set of RESTful API endpoints for managing ap
 *   `POST /api/budgets`: Create a new budget.
 *   `GET /api/bills`: Retrieve a list of bills.
 *   `POST /api/bills`: Create a new bill.
+* `GET /api/profile`: Retrieve user profile information.
+* `PUT /api/profile`: Update user profile information.
+* `GET /api/savings`: Retrieve a list of savings accounts.
+* `POST /api/savings`: Create a new savings account.
+* `GET /api/savings/transactions`: Retrieve a list of saving transactions.
+* `POST /api/savings/transactions`: Create a new saving transaction.
 
 ## Database Schema
 
@@ -67,6 +75,8 @@ The application utilizes a PostgreSQL relational database to persist data. The d
 *   **transactions:** Contains records of individual expenses.
 *   **budgets:** Stores budget information for different categories.
 *   **bills:** Contains records of recurring bills.
+*   **savings:** Stores information about user savings accounts.
+*   **saving_transactions:** Contains records of transactions related to savings accounts.
 
 ## Getting Started
 
@@ -128,7 +138,7 @@ To get the application up and running locally, follow these steps:
 ![Profile](frontend/public/img13.png)
 
 ### Saving
-[Savings account management -- track and manage your savings]
+[Savings account management -- track and manage your savings from various financial institutions]
 ![Profile](frontend/public/img15.png)
 ### Profile
 
