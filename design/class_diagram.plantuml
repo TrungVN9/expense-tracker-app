@@ -79,6 +79,7 @@ package "DTOs (Data Transfer Objects)" {
     class SavingTransactionResponse
     class SavingRequest
     class SavingResponse
+    class TransactionDTO
 
 }
 
@@ -97,8 +98,6 @@ AuthController -- LoginRequest
 BudgetController -- BudgetResponse
 TransactionController -- TransactionRequest
 TransactionController -- TransactionDTO
-UserController -- UserDTO
-UserController -- UpdateUserRequest
 SavingController -- SavingRequest
 SavingController -- SavingResponse
 SavingController -- SavingTransactionResponse
