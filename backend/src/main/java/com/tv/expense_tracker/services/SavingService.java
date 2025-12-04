@@ -11,7 +11,6 @@ import com.tv.expense_tracker.repositories.SavingTransactionRepository;
 import com.tv.expense_tracker.controllers.dtos.SavingTransactionResponse;
 import com.tv.expense_tracker.controllers.dtos.InterestProjectionEntry;
 import java.util.ArrayList;
-import java.util.Comparator;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
