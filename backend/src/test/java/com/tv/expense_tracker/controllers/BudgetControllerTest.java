@@ -70,7 +70,7 @@ public class BudgetControllerTest {
     public void testGetBudgets_Success() throws Exception {
         Budget budget = new Budget();
         budget.setCategory("Groceries");
-        budget.setBudget_limit(BigDecimal.valueOf(500));
+        budget.setBudgetLimit(BigDecimal.valueOf(500));
         budget.setPeriod("Monthly");
         budget.setCustomer(testCustomer);
         budgetRepository.save(budget);
@@ -86,7 +86,7 @@ public class BudgetControllerTest {
     public void testCreateBudget_Success() throws Exception {
         Budget budget = new Budget();
         budget.setCategory("Entertainment");
-        budget.setBudget_limit(BigDecimal.valueOf(200));
+        budget.setBudgetLimit(BigDecimal.valueOf(200));
         budget.setPeriod("Monthly");
 
         mockMvc.perform(post("/api/budgets")
@@ -102,14 +102,14 @@ public class BudgetControllerTest {
     public void testUpdateBudget_Success() throws Exception {
         Budget budget = new Budget();
         budget.setCategory("Shopping");
-        budget.setBudget_limit(BigDecimal.valueOf(300));
+        budget.setBudgetLimit(BigDecimal.valueOf(300));
         budget.setPeriod("Monthly");
         budget.setCustomer(testCustomer);
         budget = budgetRepository.save(budget);
 
         Budget updatedBudget = new Budget();
         updatedBudget.setCategory("Shopping");
-        updatedBudget.setBudget_limit(BigDecimal.valueOf(350));
+        updatedBudget.setBudgetLimit(BigDecimal.valueOf(350));
         updatedBudget.setPeriod("Monthly");
 
         mockMvc.perform(put("/api/budgets/" + budget.getId())
@@ -117,7 +117,7 @@ public class BudgetControllerTest {
                         .content(objectMapper.writeValueAsString(updatedBudget))
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.budget_limit").value(350));
+                .andExpect(jsonPath("$.budgetLimit").value(350));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class BudgetControllerTest {
     public void testDeleteBudget_Success() throws Exception {
         Budget budget = new Budget();
         budget.setCategory("To Delete");
-        budget.setBudget_limit(BigDecimal.valueOf(100));
+        budget.setBudgetLimit(BigDecimal.valueOf(100));
         budget.setPeriod("Monthly");
         budget.setCustomer(testCustomer);
         budget = budgetRepository.save(budget);

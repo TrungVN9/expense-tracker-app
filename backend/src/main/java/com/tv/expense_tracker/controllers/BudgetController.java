@@ -44,7 +44,7 @@ public class BudgetController {
     public static class BudgetResponse {
         public Long id;
         public String category;
-        public BigDecimal budget_limit;
+        public BigDecimal budgetLimit;
         public String period;
         public BigDecimal spent;
 
@@ -54,7 +54,7 @@ public class BudgetController {
         public BudgetResponse(Budget b, BigDecimal spent) {
             this.id = b.getId();
             this.category = b.getCategory();
-            this.budget_limit = b.getBudget_limit();
+            this.budgetLimit = b.getBudgetLimit();
             this.period = b.getPeriod();
             this.spent = spent;
         }
@@ -111,7 +111,7 @@ public class BudgetController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         existing.setCategory(payload.getCategory());
-        existing.setBudget_limit(payload.getBudget_limit());
+        existing.setBudgetLimit(payload.getBudgetLimit());
         existing.setPeriod(payload.getPeriod());
 
         Budget saved = budgetRepository.save(existing);
@@ -150,7 +150,7 @@ public class BudgetController {
         List<Budget> budgets = budgetRepository.findByCustomer(customer);
         List<Transaction> txs = transactionRepository.findByCustomerOrderByDateDesc(customer);
 
-        BigDecimal totalLimit = budgets.stream().map(Budget::getBudget_limit).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalLimit = budgets.stream().map(Budget::getBudgetLimit).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalSpent = BigDecimal.ZERO;
         for (Budget b : budgets) {
             BigDecimal spent = txs.stream()
