@@ -6,45 +6,35 @@ import com.tv.expense_tracker.models.Transaction;
 import com.tv.expense_tracker.repositories.BudgetRepository;
 import com.tv.expense_tracker.repositories.CustomerRepository;
 import com.tv.expense_tracker.repositories.TransactionRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/budgets")
+@AllArgsConstructor
 public class BudgetController {
 
     private final BudgetRepository budgetRepository;
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
 
-    public BudgetController(BudgetRepository budgetRepository, CustomerRepository customerRepository,
-            TransactionRepository transactionRepository) {
-        this.budgetRepository = budgetRepository;
-        this.customerRepository = customerRepository;
-        this.transactionRepository = transactionRepository;
-    }
-
-    private Customer getCurrentCustomer() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth != null ? auth.getName() : null;
-        if (email == null)
-            return null;
-        return customerRepository.findByEmail(email).orElse(null);
-    }
-
     // DTO for response including computed spent
     public static class BudgetResponse {
         public Long id;
         public String category;
-        public BigDecimal budget_limit;
+        public BigDecimal budgetLimit;
         public String period;
         public BigDecimal spent;
 
@@ -54,20 +44,23 @@ public class BudgetController {
         public BudgetResponse(Budget b, BigDecimal spent) {
             this.id = b.getId();
             this.category = b.getCategory();
-            this.budget_limit = b.getBudget_limit();
+            this.budgetLimit = b.getBudgetLimit();
             this.period = b.getPeriod();
             this.spent = spent;
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<BudgetResponse>> getBudgets() {
-        Customer customer = getCurrentCustomer();
-        if (customer == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        List<Budget> budgets = budgetRepository.findByCustomer(customer);
+    private Customer getCurrentCustomer() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth != null ? auth.getName() : null;
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+    }
 
-        // load transactions for this customer once and compute sums by category
+    private Map<String, BigDecimal> calculateSpentByCategory(Customer customer) {
         List<Transaction> txs = transactionRepository.findByCustomerOrderByDateDesc(customer);
         Map<String, BigDecimal> spentByCategory = new HashMap<>();
         for (Transaction t : txs) {
@@ -77,6 +70,23 @@ public class BudgetController {
                 spentByCategory.put(cat, spentByCategory.get(cat).add(t.getAmount()));
             }
         }
+        return spentByCategory;
+    }
+
+    private Budget getBudgetForCustomer(Long id, Customer customer) {
+        Budget budget = budgetRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Budget not found"));
+        if (!budget.getCustomer().getId().equals(customer.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access to this budget is denied");
+        }
+        return budget;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BudgetResponse>> getBudgets() {
+        Customer customer = getCurrentCustomer();
+        List<Budget> budgets = budgetRepository.findByCustomer(customer);
+        Map<String, BigDecimal> spentByCategory = calculateSpentByCategory(customer);
 
         List<BudgetResponse> resp = budgets.stream().map(b -> {
             BigDecimal spent = spentByCategory.getOrDefault(b.getCategory(), BigDecimal.ZERO);
@@ -89,40 +99,28 @@ public class BudgetController {
     @PostMapping
     public ResponseEntity<BudgetResponse> createBudget(@RequestBody Budget payload) {
         Customer customer = getCurrentCustomer();
-        if (customer == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         payload.setCustomer(customer);
         Budget saved = budgetRepository.save(payload);
-        // spent = 0 initially
-        BudgetResponse resp = new BudgetResponse(saved, BigDecimal.ZERO);
+        // recompute spent for this category
+        Map<String, BigDecimal> spentByCategory = calculateSpentByCategory(customer);
+        BigDecimal spent = spentByCategory.getOrDefault(saved.getCategory(), BigDecimal.ZERO);
+        BudgetResponse resp = new BudgetResponse(saved, spent);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BudgetResponse> updateBudget(@PathVariable Long id, @RequestBody Budget payload) {
         Customer customer = getCurrentCustomer();
-        if (customer == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        Optional<Budget> existingOpt = budgetRepository.findById(id);
-        if (existingOpt.isEmpty())
-            return ResponseEntity.notFound().build();
-        Budget existing = existingOpt.get();
-        if (!existing.getCustomer().getId().equals(customer.getId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Budget existing = getBudgetForCustomer(id, customer);
 
         existing.setCategory(payload.getCategory());
-        existing.setBudget_limit(payload.getBudget_limit());
+        existing.setBudgetLimit(payload.getBudgetLimit());
         existing.setPeriod(payload.getPeriod());
 
         Budget saved = budgetRepository.save(existing);
 
-        // recompute spent for this category
-        List<Transaction> txs = transactionRepository.findByCustomerOrderByDateDesc(customer);
-        BigDecimal spent = txs.stream()
-                .filter(t -> "expense".equalsIgnoreCase(t.getType()) && t.getCategory() != null
-                        && t.getCategory().equals(saved.getCategory()))
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Map<String, BigDecimal> spentByCategory = calculateSpentByCategory(customer);
+        BigDecimal spent = spentByCategory.getOrDefault(saved.getCategory(), BigDecimal.ZERO);
 
         return ResponseEntity.ok(new BudgetResponse(saved, spent));
     }
@@ -130,34 +128,21 @@ public class BudgetController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBudget(@PathVariable Long id) {
         Customer customer = getCurrentCustomer();
-        if (customer == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        Optional<Budget> existingOpt = budgetRepository.findById(id);
-        if (existingOpt.isEmpty())
-            return ResponseEntity.notFound().build();
-        Budget existing = existingOpt.get();
-        if (!existing.getCustomer().getId().equals(customer.getId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        budgetRepository.delete(existing);
+        Budget budget = getBudgetForCustomer(id, customer);
+        budgetRepository.delete(budget);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getBudgetStatus() {
         Customer customer = getCurrentCustomer();
-        if (customer == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         List<Budget> budgets = budgetRepository.findByCustomer(customer);
-        List<Transaction> txs = transactionRepository.findByCustomerOrderByDateDesc(customer);
+        Map<String, BigDecimal> spentByCategory = calculateSpentByCategory(customer);
 
-        BigDecimal totalLimit = budgets.stream().map(Budget::getBudget_limit).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalLimit = budgets.stream().map(Budget::getBudgetLimit).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalSpent = BigDecimal.ZERO;
         for (Budget b : budgets) {
-            BigDecimal spent = txs.stream()
-                    .filter(t -> "expense".equalsIgnoreCase(t.getType()) && t.getCategory() != null
-                            && t.getCategory().equals(b.getCategory()))
-                    .map(Transaction::getAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal spent = spentByCategory.getOrDefault(b.getCategory(), BigDecimal.ZERO);
             totalSpent = totalSpent.add(spent);
         }
 

@@ -3,19 +3,16 @@ package com.tv.expense_tracker.services;
 import com.tv.expense_tracker.exceptions.EmailAlreadyExistsException;
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.repositories.CustomerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
-        this.customerRepository = customerRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public Customer signup(String fullName, String email, String password) {
         if (customerRepository.findByEmail(email).isPresent()) {

@@ -2,6 +2,7 @@ package com.tv.expense_tracker.services;
 
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.repositories.CustomerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,15 +10,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CustomerUserDetailsService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
-
-    public CustomerUserDetailsService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -27,13 +26,7 @@ public class CustomerUserDetailsService implements UserDetailsService {
         return new User(customer.getEmail(), customer.getPassword(), new ArrayList<>());
     }
 
-    /**
-     * Find customer by email
-     * 
-     * @param email the customer email
-     * @return Customer object if found, null otherwise
-     */
-    public Customer findCustomerByEmail(String email) {
-        return customerRepository.findByEmail(email).orElse(null);
+    public Optional<Customer> findCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
     }
 }

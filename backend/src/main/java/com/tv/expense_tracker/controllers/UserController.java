@@ -2,44 +2,31 @@ package com.tv.expense_tracker.controllers;
 
 import com.tv.expense_tracker.models.Customer;
 import com.tv.expense_tracker.repositories.CustomerRepository;
-import com.tv.expense_tracker.services.CustomerUserDetailsService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
-/**
- * User Controller
- * Handles user profile endpoints
- */
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
 
-    private final CustomerUserDetailsService customerUserDetailsService;
     private final CustomerRepository customerRepository;
 
-    /**
-     * Get current authenticated user profile
-     *
-     * @return UserDTO containing user details
-     */
-    @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser() {
+    private Customer getCurrentCustomer() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 
-        Customer customer = customerUserDetailsService.findCustomerByEmail(email);
-        if (customer == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        UserDTO userDto = new UserDTO(
+    private UserDTO toUserDTO(Customer customer) {
+        return new UserDTO(
                 customer.getId(),
                 customer.getEmail(),
                 customer.getFullName(),
@@ -48,30 +35,18 @@ public class UserController {
                 customer.getAddress(),
                 customer.getDateOfBirth(),
                 customer.getOccupation());
-
-        return ResponseEntity.ok(userDto);
     }
 
-    /**
-     * Update current user profile
-     *
-     * @param updateRequest The user data to update
-     * @return Updated UserDTO
-     */
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser() {
+        Customer customer = getCurrentCustomer();
+        return ResponseEntity.ok(toUserDTO(customer));
+    }
+
     @PutMapping("/me")
     public ResponseEntity<UserDTO> updateCurrentUser(@RequestBody UpdateUserRequest updateRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        Customer customerToUpdate = getCurrentCustomer();
 
-        // Use Optional for better null handling
-        Optional<Customer> optionalCustomer = customerRepository.findByEmail(email);
-        if (optionalCustomer.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Customer customerToUpdate = optionalCustomer.get();
-
-        // Update fields from the request
         customerToUpdate.setFullName(updateRequest.getFullName());
         customerToUpdate.setUsername(updateRequest.getUsername());
         customerToUpdate.setPhone(updateRequest.getPhone());
@@ -79,30 +54,11 @@ public class UserController {
         customerToUpdate.setDateOfBirth(updateRequest.getDateOfBirth());
         customerToUpdate.setOccupation(updateRequest.getOccupation());
 
-        // In a real app, you might also update the email, which requires more complex logic (e.g., re-verification)
-        // customerToUpdate.setEmail(updateRequest.getEmail());
-
-        // Save the updated customer to the database
         Customer updatedCustomer = customerRepository.save(customerToUpdate);
 
-        // Return the updated data
-        UserDTO userDto = new UserDTO(
-                updatedCustomer.getId(),
-                updatedCustomer.getEmail(),
-                updatedCustomer.getFullName(),
-                updatedCustomer.getUsername(),
-                updatedCustomer.getPhone(),
-                updatedCustomer.getAddress(),
-                updatedCustomer.getDateOfBirth(),
-                updatedCustomer.getOccupation()
-        );
-
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(toUserDTO(updatedCustomer));
     }
 
-    /**
-     * User Data Transfer Object
-     */
     @Data
     @AllArgsConstructor
     public static class UserDTO {
@@ -116,9 +72,6 @@ public class UserController {
         private String occupation;
     }
 
-    /**
-     * Update User Request DTO
-     */
     @Data
     public static class UpdateUserRequest {
         private String email;

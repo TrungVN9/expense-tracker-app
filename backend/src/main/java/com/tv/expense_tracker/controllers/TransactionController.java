@@ -21,16 +21,14 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    /**
-     * Endpoint to create a new transaction for the authenticated user.
-     * 
-     * @param request The transaction details.
-     * @return The created transaction.
-     */
+    private String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
+
     @PostMapping
     public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
+        String userEmail = getCurrentUserEmail();
 
         Transaction transaction = new Transaction();
         transaction.setDescription(request.getDescription());
@@ -43,18 +41,13 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new TransactionDTO(createdTransaction));
     }
 
-    /**
-     * Endpoint to get all transactions for the authenticated user with pagination.
-     * 
-     * @return A list of transactions.
-     */
     @GetMapping
     public ResponseEntity<List<TransactionDTO>> getUserTransactions() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
+        String userEmail = getCurrentUserEmail();
 
         List<Transaction> transactions = transactionService.getTransactionsForUser(userEmail);
-        List<TransactionDTO> transactionDTOs = transactions.stream().map(TransactionDTO::new)
+        List<TransactionDTO> transactionDTOs = transactions.stream()
+                .map(TransactionDTO::new)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(transactionDTOs);

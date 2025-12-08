@@ -31,11 +31,7 @@ public class AuthController {
                 request.getPassword()
         );
 
-        UserDetails userDetails =
-                customerUserDetailsService.loadUserByUsername(customer.getEmail());
-
-        String token = jwtUtil.generateToken(userDetails);
-        return new AuthResponse(token);
+        return createAuthResponse(customer.getEmail());
     }
 
     @PostMapping("/login")
@@ -47,8 +43,12 @@ public class AuthController {
                 )
         );
 
+        return createAuthResponse(request.getEmail());
+    }
+
+    private AuthResponse createAuthResponse(String email) {
         UserDetails userDetails =
-                customerUserDetailsService.loadUserByUsername(request.getEmail());
+                customerUserDetailsService.loadUserByUsername(email);
 
         String token = jwtUtil.generateToken(userDetails);
         return new AuthResponse(token);

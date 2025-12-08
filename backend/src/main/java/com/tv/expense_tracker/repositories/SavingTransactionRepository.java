@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface SavingTransactionRepository extends JpaRepository<SavingTransaction, Long> {
     List<SavingTransaction> findBySavingOrderByCreatedAtDesc(Saving saving);
+    void deleteBySaving(Saving saving);
 }
