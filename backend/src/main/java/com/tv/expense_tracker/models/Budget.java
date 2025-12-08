@@ -20,7 +20,7 @@ public class Budget {
     private String category;
 
     @Column(nullable = false)
-    private BigDecimal budget_limit;
+    private BigDecimal budgetLimit;
 
     private String period; // monthly, weekly, yearly
 
