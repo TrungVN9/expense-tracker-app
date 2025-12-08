@@ -15,7 +15,7 @@ import { LayoutDashboard, CreditCard, UserCircle, PiggyBank, LogOut, Wallet, Rec
 interface Budget {
   id: string;
   category: string;
-  budget_limit: number;
+  budgetLimit: number;
   spent: number;
   period: string;
 }
@@ -29,7 +29,7 @@ function BudgetsContent() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [formData, setFormData] = useState({
     category: '',
-    budget_limit: '',
+    budgetLimit: '',
     period: 'monthly',
   });
 
@@ -41,7 +41,7 @@ function BudgetsContent() {
         (data || []).map((item: any) => ({
           id: item.id,
           category: item.category ?? '',
-            budget_limit: item.budget_limit ?? 0,
+            budgetLimit: item.budgetLimit ?? 0,
           spent: item.spent ?? 0,
           period: item.period ?? 'monthly',
         }))
@@ -74,7 +74,7 @@ function BudgetsContent() {
     try {
       const budgetData = {
         category: formData.category,
-          budget_limit: parseFloat(formData.budget_limit),
+          budgetLimit: parseFloat(formData.budgetLimit),
         period: formData.period,
       };
 
@@ -107,7 +107,7 @@ function BudgetsContent() {
     setEditingBudget(budget);
     setFormData({
       category: budget.category,
-        budget_limit: budget.budget_limit.toString(),
+        budgetLimit: budget.budgetLimit.toString(),
       period: budget.period,
     });
     setShowModal(true);
@@ -116,7 +116,7 @@ function BudgetsContent() {
   const resetForm = () => {
     setFormData({
       category: '',
-      budget_limit: '',
+      budgetLimit: '',
       period: 'monthly',
     });
     setEditingBudget(null);
@@ -251,9 +251,9 @@ function BudgetsContent() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {budgets.map((budget) => {
-             const percentage = calculatePercentage(budget.spent, budget.budget_limit);
-                  const remaining = budget.budget_limit - budget.spent;
-                  const isOverBudget = budget.spent > budget.budget_limit;
+             const percentage = calculatePercentage(budget.spent, budget.budgetLimit);
+                  const remaining = budget.budgetLimit - budget.spent;
+                  const isOverBudget = budget.spent > budget.budgetLimit;
 
                 return (
                   <Card key={budget.id} className="border-border hover:shadow-lg transition-shadow">
@@ -294,7 +294,7 @@ function BudgetsContent() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Spent</span>
-                            <span className="font-medium">${budget.spent.toFixed(2)} / ${budget.budget_limit.toFixed(2)}</span>
+                            <span className="font-medium">${budget.spent.toFixed(2)} / ${budget.budgetLimit.toFixed(2)}</span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
@@ -370,8 +370,8 @@ function BudgetsContent() {
                       step="0.01"
                       placeholder="0.00"
                       className="pl-9"
-                      value={formData.budget_limit}
-                      onChange={(e) => setFormData({ ...formData, budget_limit: e.target.value })}
+                      value={formData.budgetLimit}
+                      onChange={(e) => setFormData({ ...formData, budgetLimit: e.target.value })}
                       required
                     />
                   </div>
