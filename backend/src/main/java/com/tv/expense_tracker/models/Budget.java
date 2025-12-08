@@ -31,9 +31,9 @@ public class Budget {
     public Budget() {
     }
 
-    public Budget(String category, BigDecimal budget_limit, String period, Customer customer) {
+    public Budget(String category, BigDecimal budgetLimit, String period, Customer customer) {
         this.category = category;
-        this.budget_limit = budget_limit;
+        this.budgetLimit = budgetLimit;
         this.period = period;
         this.customer = customer;
     }
