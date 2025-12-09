@@ -33,19 +33,28 @@ package "Controllers (API Layer)" {
 }
 
 package "Services (Business Logic)" {
-    class AuthService
-    class CustomerUserDetailsService
-    class TransactionService
-    class SavingService
+    class AuthService <<Facade>>
+    interface UserDetailsService
+    class CustomerUserDetailsService <<Strategy>>
+    CustomerUserDetailsService --|> UserDetailsService
+    class TransactionService <<Facade>>
+    class SavingService <<Facade>>
 }
 
 package "Repositories (Data Access)" {
+    interface Repository <<interface>>
     interface BillRepository
     interface BudgetRepository
     interface CustomerRepository
     interface TransactionRepository
     interface SavingRepository
     interface SavingTransactionRepository
+    BillRepository --|> Repository
+    BudgetRepository --|> Repository
+    CustomerRepository --|> Repository
+    TransactionRepository --|> Repository
+    SavingRepository --|> Repository
+    SavingTransactionRepository --|> Repository
 }
 
 ' 1. Controller -> Service (Strict Layering)
@@ -54,7 +63,7 @@ BillController --> BillRepository
 BudgetController --> BudgetRepository
 BudgetController --> TransactionRepository
 TransactionController --> TransactionService
-UserController --> CustomerUserDetailsService
+UserController --> UserDetailsService
 UserController --> CustomerRepository
 SavingController --> SavingService
 SavingController --> SavingTransactionRepository
@@ -77,15 +86,14 @@ package "Models (Domain Objects)" {
 }
 
 package "Securities (Cross-Cutting Concern)" {
-    class JwtAuthFilter
-    class JwtUtil
+    class JwtAuthFilter <<TemplateMethod>>
+    class OncePerRequestFilter <<abstract>>
+    JwtAuthFilter --|> OncePerRequestFilter
+    class JwtUtil <<Singleton>>
     class SecurityConfig
 }
 
-
-
-
-' 3. Repository -> Models
+' Repository -> Models
 BillRepository -- Bill
 BudgetRepository -- Budget
 CustomerRepository -- Customer
@@ -107,10 +115,12 @@ SavingController -- TransferRequest
 SavingController -- AmountRequest
 SavingController -- InterestProjectionEntry
 
-' Security
+' Security (Singleton Pattern)
 SecurityConfig --> JwtAuthFilter
-JwtAuthFilter --> JwtUtil
-JwtAuthFilter --> CustomerUserDetailsService
+JwtAuthFilter --> JwtUtil : uses (Singleton)
+JwtAuthFilter --> UserDetailsService : uses (Strategy)
+SecurityConfig --> JwtAuthFilter : registers filter
+
 
 ' Model Relationships
 Customer "1" -- "*" Bill
