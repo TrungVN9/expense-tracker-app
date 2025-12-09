@@ -57,13 +57,13 @@ switch (User Action)
 
   case (Set or Track Goals)
     partition "Saving Goals" {
-      :Create/Update Goals;
+      :Create/Update Saving Goals/ Investment Targets;
       :Track Goal Progress;
-      if (Goal Achieved?) then (yes)
-          :Notify Goal Completion;
-      else (no)
-          :Notify Falling Behind;
-      endif
+      :Transfer Funds to Savings (vise versa);
+      :Saving Interest Projects;
+      :Funds Allocation to Goals;
+      :History of Savings Transaction;
+      :Update Goal Progress on Dashboard;
     }
     --> back to Dashboard
 
@@ -96,14 +96,6 @@ switch (User Action)
 '      :Convert Paid Reminder to Expense;
 '    }
 '    --> back to Dashboard
-
-  case (Filter or Search Expenses)
-    partition "Expense Filtering" {
-      :Search or Filter Expenses;
-      :Display Filtered Results;
-    }
-    --> back to Dashboard
-
   case (Logout)
     partition "Logout" {
       :Save User Session;
